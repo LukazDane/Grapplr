@@ -17,7 +17,7 @@ twitter_blueprint = make_twitter_blueprint(api_key='', api_secret='')
 github_blueprint = make_github_blueprint(client_id='', client_secret='')
 
 DEBUG = True
-PORT = 9000
+PORT = int(os.environ.get('PORT', 5000))
 #-------
 #Login manager
 
