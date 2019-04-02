@@ -1,0 +1,22 @@
+% extends "layout.html" %} {% block body %}
+<form method="POST" action="" novalidate>
+  {{ form.hidden_tag() }}
+
+  <div class="field">
+    {{ form.height.label }}
+    {{ form.height(class_="textarea") }}
+  </div>
+
+  <div class="field">
+    {{ form.weight.label }}
+    {{ form.weight(class_="textarea") }}
+  </div>
+
+  <div class="field">
+    {{ form.style.label }}
+    {{ form.style(class_="textarea") }}
+  </div>
+
+  {{ form.submit(class_="button") }}
+</form>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends 'layout.html' %} {% block body %}
+<div class="register-container">
+  <form method="POST" action="" class="form register">
+    <h1>Register</h1>
+    <hr />
+    {{ form.hidden_tag() }}
+    {% for field in form %}
+    <div class="field">
+      {% if field.errors %} {% for error in field.errors %}
+      <div class="notification error">{{ error }}</div>
+      {% endfor %} {% endif %}
+      {{ field(placeholder=field.label.text) }}
+    </div>
+    {% endfor %}
+    <button type="submit" id="submit">Register!</button>
+  </form>
+</div>
+
+<script>
+  window.fbAsyncInit = function() {
+    FB.init({
+      appId: "{318612112191217}",
+      cookie: true,
+      xfbml: true,
+      version: "{v3.2}"
+    });
+
+    FB.AppEvents.logPageView();
+  };
+
+  (function(d, s, id) {
+    var js,
+      fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) {
+      return;
+    }
+    js = d.createElement(s);
+    js.id = id;
+    js.src = "https://connect.facebook.net/en_US/sdk.js";
+    fjs.parentNode.insertBefore(js, fjs);
+  })(document, "script", "facebook-jssdk");
+</script>
+
+{% endblock %}

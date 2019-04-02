@@ -1,0 +1,20 @@
+{% extends 'layout.html' %} {% block body %} {% if session['logged_in'] %}
+You're logged in already! {% else %}
+<form action="/login" method="POST">
+  <input type="username" name="username" placeholder="Username" />
+  <input type="password" name="password" placeholder="Password" />
+  <input type="submit" value="Log in" />
+</form>
+{% endif %}
+
+<h1>-Or-</h1>
+<div
+  class="fb-login-button"
+  data-size="large"
+  data-button-type="login_with"
+  data-auto-logout-link="false"
+  data-use-continue-as="true"
+></div>
+<!-- <fb:login-button scope="public_profile,email" onlogin="checkLoginState();">
+</fb:login-button> -->
+{% endblock %}
