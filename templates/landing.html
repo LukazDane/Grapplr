@@ -1,4 +1,5 @@
 {% extends 'layout.html' %} {% block body %}
+<h1>This page should only display for users that are NOT signed in</h1>
 <div><a href={{url_for('login')}} class="button is-primary">Log-In</a></div>
 <div><a href={{url_for('register')}} class="button is-primary">Sign-Up</a></div>
 

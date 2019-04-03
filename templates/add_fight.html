@@ -1,0 +1,16 @@
+{% extends "layout.html" %} {% block body %}
+<h1>Post a new Fight request</h1>
+<form method="POST" action="" novalidate class="add-workout">
+  {{ form.hidden_tag() }}
+  <div class="field add-fight-name">
+    {{ form.name.label }}
+    {{ form.name(class_="input") }}
+  </div>
+
+  <div class="field">
+    {{ form.description.label }}
+    {{ form.description(class_="textarea") }}
+  </div>
+  {{ form.submit(class_="button") }}
+</form>
+{% endblock %}

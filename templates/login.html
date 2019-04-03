@@ -1,20 +1,29 @@
-{% extends 'layout.html' %} {% block body %} {% if session['logged_in'] %}
-You're logged in already! {% else %}
-<form action="/login" method="POST">
-  <input type="username" name="username" placeholder="Username" />
-  <input type="password" name="password" placeholder="Password" />
-  <input type="submit" value="Log in" />
-</form>
-{% endif %}
+{% extends "layout.html" %} {% block body %}
+<div class="login-container">
+  <form method="POST" action="" class="form login">
+    <h1>Log-In</h1>
+    <hr />
+    {{ form.hidden_tag() }}
+    {% for field in form %}
+    <div class="field">
+      {% if field.errors %} {% for error in field.errors %}
+      <div class="notification error">{{ error }}</div>
+      {% endfor %} {% endif %}
+      {{ field(placeholder=field.label.text) }}
+    </div>
+    {% endfor %}
+    <button type="submit" id="submit">Login!</button>
+  </form>
+</div>
 
-<h1>-Or-</h1>
+<!-- <h1>-Or-</h1>
 <div
   class="fb-login-button"
   data-size="large"
   data-button-type="login_with"
   data-auto-logout-link="false"
   data-use-continue-as="true"
-></div>
+></div> -->
 <!-- <fb:login-button scope="public_profile,email" onlogin="checkLoginState();">
 </fb:login-button> -->
 {% endblock %}

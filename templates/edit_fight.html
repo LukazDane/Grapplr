@@ -1,0 +1,14 @@
+{% extends "layout.html" %} {% block body %}
+<form method="POST" action="" class="form edit-workout">
+  {{ form.hidden_tag() }}
+  <div class="field edit-fight-name">
+    {{ form.name.label }}
+    {{ form.name(class_="input") }}
+  </div>
+  <div class="field edit-fight-desc">
+    {{ form.description.label }}
+    {{ form.description(class_="textarea") }}
+  </div>
+  {{ form.submit(class_="button") }}
+</form>
+{% endblock %}
