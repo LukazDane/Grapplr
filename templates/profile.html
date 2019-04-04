@@ -3,6 +3,7 @@
 <a class="button is-primary" href={{url_for('logout')}}>Log-Out</a>
 <div class="column is-one-quarter user">
     <img class="prof-img-a" src="/static/default.jpg" />
+    <a href="/profile/upload">Upload Profile Photo</a>
     <h1 class="prof-username">{{ current_user.username }}</h1>
     <div class='user-edit'><a href="{{url_for('edit_profile')}}"><i class="fas fa-user-edit"></i>Edit Profile</a></div>	
     <!-- <hr /> -->

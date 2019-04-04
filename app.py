@@ -2,6 +2,8 @@ from flask import Flask, g
 from flask import render_template, flash, redirect, url_for, session, request, abort 
 from flask import make_response as response
 from forms import FightForm
+from werkzeug.utils import secure_filename
+from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from flask_bcrypt import check_password_hash
 from peewee import fn
@@ -24,6 +26,8 @@ PORT = int(os.environ.get('PORT', 9000))
 
 app = Flask(__name__)
 app.secret_key = 'elsdhfsdlfdsjfkljdslfhjlds'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////Users/lukazphelps/Desktop/Grapplr/grapplr.db'
+db = SQLAlchemy(app)
 
 #-------------
 #Login manager
@@ -128,6 +132,22 @@ def register():
 def profile():
     return render_template('profile.html', user=current_user)
 
+@app.route('/profile/upload')
+@login_required
+def imgupload():
+    return render_template('upload.html')
+#image upload
+@app.route('/upload', methods=['POST'])
+@login_required
+def upload():
+    file = request.files['inputFile']
+
+    newFile = FileContents(name=file.filename, data=file.read())
+    db.session.add(newFile)
+    db.session.commit()
+    flash('Saved ' + file.filename + ' to the database!')
+    return redirect(url_for('profile'))
+
 #edit profile
 @app.route('/editProfile', methods=['GET', 'POST'])
 @login_required
@@ -143,6 +163,38 @@ def edit_profile():
         return redirect(url_for('profile'))
 
     return render_template('edit_profile.html', form = form)
+
+
+#--------------
+# dash
+#--------------
+@app.route('/dashboard/')
+@app.route('/dashboard', methods=['GET','POST'])
+@login_required
+def dashboard():
+    return render_template('dashboard.html', user=current_user)
+
+#--------------
+# swipe
+#--------------
+@app.route('/swipe/')
+@app.route('/swipe', methods=['GET','POST'])
+@login_required
+def swipe():
+    return render_template('swipe.html', user=current_user)
+
+#--------------
+# Other Users
+#--------------
+@app.route('/profile/<username>')
+@login_required
+def user(username):
+    
+    fights = [
+        {'name': user, 'description': 'Test post #1'},
+        {'name': user, 'description': 'Test post #2'}
+    ]
+    return render_template('profile.html', username='user.username',user=user, fights=fights)
 
 #--------------
 # delete fight
@@ -188,7 +240,7 @@ def add_fight():
             name=form.name.data,
             description=form.description.data.strip(),
             user = current_user.id)
-        return render_template('profile.html', user=current_user, form=form, fight=fights)
+        return render_template('dashboard.html', user=current_user, form=form, fight=fights)
     return render_template('add_fight.html', user=current_user, form=form, fight=fights)
 
 #---------------
@@ -211,18 +263,24 @@ def page_not_found(e):
 #---------------------------------------------------------
 
 # --------------------------------------------------------
-# class User(db.Model):
-#     __tablename__ = "users"
-#     id = db.Column(db.Integer, primary_key=True)
-#     username = db.Column(String(15), unique=True)
-#     email = db.Column(db.String(120), unique=True)
-#     password = db.Column(String)
-#     age = db.Column(String)
-#     location = db.Column(String)
-#     height = db.Column(Integer)
-#     weight = db.Column(Integer)
-#     about = db.Column(String)
-#     style= db.Column(String)
+
+class FileContents(db.Model): 
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(300))
+    data = db.Column(db.LargeBinary)
+
+class User(db.Model):
+    __tablename__ = "user"
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(15), unique=True)
+    email = db.Column(db.String(120), unique=True)
+    password = db.Column(db.String)
+    age = db.Column(db.String)
+    location = db.Column(db.String)
+    height = db.Column(db.Integer)
+    weight = db.Column(db.Integer)
+    about = db.Column(db.String)
+    style= db.Column(db.String)
 
 #     def __init__(self, email):
 #         self.email = email

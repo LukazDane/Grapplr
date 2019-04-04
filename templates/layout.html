@@ -11,46 +11,22 @@
       media="screen"
       href="/static/styles.css"
     />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.4/css/bulma.min.css" />
     <!-- <script src="main.js"></script> -->
   </head>
   <body>
-    <!-- <script>
-      window.fbAsyncInit = function() {
-        FB.init({
-          appId: "{318612112191217}",
-          cookie: true,
-          xfbml: true,
-          version: "{v3.2}"
-        });
-
-        FB.AppEvents.logPageView();
-      };
-
-      (function(d, s, id) {
-        var js,
-          fjs = d.getElementsByTagName(s)[0];
-        if (d.getElementById(id)) {
-          return;
-        }
-        js = d.createElement(s);
-        js.id = id;
-        js.src = "https://connect.facebook.net/en_US/sdk.js";
-        fjs.parentNode.insertBefore(js, fjs);
-      })(document, "script", "facebook-jssdk");
-
-      function checkLoginState() {
-        FB.getLoginStatus(function(response) {
-          statusChangeCallback(response);
-        });
-      }
-    </script>
-    <div id="fb-root"></div>
-    <script
-      async
-      defer
-      crossorigin="anonymous"
-      src="https://connect.facebook.net/en_GB/sdk.js#xfbml=1&version=v3.2&appId=318612112191217&autoLogAppEvents=1"
-    ></script> -->
-    {% block body %}{% endblock%}
+   
+      
+    {% block body %}
+    
+      {% endblock%}
+      {% if current_user.is_authenticated %}
+    Hi {{ current_user.username }}!
+    <footer>
+      <div><a href={{url_for('profile')}}>User</a></div>
+      <div><a href={{url_for('dashboard')}}>Dash</a></div>
+      <div><a href={{url_for('swipe')}}>Swipe</a></div>
+    </footer>
+    {% endif %}
   </body>
 </html>

@@ -1,5 +1,5 @@
-{% extends profile.html %}
-<!-- <form id="workoutForm" name="workoutForm" class="form" method="post">
+{% extends 'dashboard.html' %} {% block body %}
+<form id="fightForm" name="fightForm" class="form" method="post">
   <div class="modal-header">
     <button type="button" class="close" data-dismiss="modal" aria-label="close">
       <span aria-hidden="true">&times;</span>
@@ -16,6 +16,6 @@
     {% block footer %}
     {{ form_field(form.submit) }} oder
     <a href="" data-dismiss="modal">Abbrechen</a>
-  </div> 
-</form> -->
+  </div>
+</form>
 {% endblock %}

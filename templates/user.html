@@ -1,0 +1,8 @@
+{% extends "layout.html" %} {% block content %}
+<h1>User: {{ user.username }}</h1>
+<hr />
+{% for fight in fights %}
+<p>
+  {{ fight.name.username }} says: <b>{{ fight.description }}</b>
+</p>
+{% endfor %} {% endblock %}

@@ -1,0 +1,11 @@
+{% extends "layout.html" %} {% block body %}
+<div>user img card</div>
+<div>
+  User names:<a href="{{ url_for('user', username=current_user.username) }}"
+    >Self</a
+  >
+</div>
+<div>User stats</div>
+<div>√</div>
+<div>X</div>
+{% endblock %}
