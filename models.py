@@ -55,6 +55,15 @@ class Fight(Model):
         database = DATABASE
         order_by = ('-timestamp',)
 
+class FileContents(Model): 
+    __table_args__ = {'extend_existing': True} 
+    name = CharField(max_length=300, unique=True)
+    # data = db.Column(db.LargeBinary, unique=True)
+    user_id = ForeignKeyField(User.id, backref='filecontents')
+    user = ForeignKeyField(User, backref="filecontents")
+
+
+
 def initialize():
     DATABASE.connect()
     DATABASE.create_tables([User, Fight], safe=True)

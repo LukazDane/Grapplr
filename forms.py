@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm as Form
-from wtforms import TextField, TextAreaField, SubmitField, StringField, PasswordField, IntegerField
+from wtforms import TextField, TextAreaField, SubmitField, StringField, PasswordField, IntegerField, FileField
 from wtforms import SelectField
 from wtforms.validators import (DataRequired, Regexp, ValidationError, Email, Length, EqualTo, NumberRange)
 from flask_login import UserMixin
@@ -73,8 +73,12 @@ class LoginForm(Form):
 
 class FightForm(Form):
     name = TextField("Title")
-    description = TextAreaField("Please explain fight requirements: length, instenity, rules, etc...")
+    description = TextAreaField("Fight requirements: \n length: \n rules: \n Misc notes:")
     submit = SubmitField('Fight!')
+
+class UploadForm(Form):
+    name = FileField('Image')
+    Submit = SubmitField('Upload')
 
 class EditFightForm(Form):
     name = TextField("By:")

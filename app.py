@@ -140,13 +140,14 @@ def imgupload():
 @app.route('/upload', methods=['POST'])
 @login_required
 def upload():
+    form = forms.UploadForm()
     file = request.files['inputFile']
-
     newFile = FileContents(name=file.filename, data=file.read())
     db.session.add(newFile)
     db.session.commit()
     flash('Saved ' + file.filename + ' to the database!')
     return redirect(url_for('profile'))
+    # return render_template('upload.html', form = form)
 
 #edit profile
 @app.route('/editProfile', methods=['GET', 'POST'])
@@ -172,7 +173,41 @@ def edit_profile():
 @app.route('/dashboard', methods=['GET','POST'])
 @login_required
 def dashboard():
+    form = forms.FightForm()
+    fights = models.Fight.select().where(models.Fight.user != current_user.id)
+    if form.validate_on_submit():
+        models.Fight.create(
+        name=form.name.data.strip(),
+        description=form.description.data.strip(), 
+        user = current_user.id)
+        return render_template("dashboard.html", user=current_user, form=form, fights=fights)
     return render_template('dashboard.html', user=current_user)
+
+#delete fight
+@app.route("/dashboard/<fightid>")
+@login_required
+def delete_fight(fightid):
+    # form = forms.fightForm()
+    fight = models.Fight.get(fightid)
+    fight.delete_instance()
+    return redirect(url_for('dashboard'))
+
+#edit fight
+@app.route("/editfight/<fightid>", methods=["GET", "POST"])
+@login_required
+def edit_fight(fightid):
+    fight = models.Fight.get(models.Fight.id == fightid)
+    form = forms.FightForm()
+    if form.validate_on_submit():
+        fight.name = form.name.data
+        fight.description = form.description.data
+        fight.save()
+        fights = models.Fight.select().where(models.Fight.user == current_user.id)
+        return render_template("dashboard.html", user=current_user, form=form, fights=fights)
+    
+    form.name.data = fight.name
+    form.description.data = fight.description
+    return render_template("edit_fight.html", user=current_user, form=form)
 
 #--------------
 # swipe
@@ -196,35 +231,6 @@ def user(username):
     ]
     return render_template('profile.html', username='user.username',user=user, fights=fights)
 
-#--------------
-# delete fight
-#--------------
-
-@app.route('/profile/<fightid>')
-@login_required
-def delete_fight(fightid):
-    fight = models.Fight.get(fightid)
-    fight.delete_instance()
-    return redirect(url_for('profile'))
-
-#--------------
-# edit fight
-#--------------
-@app.route("/editfight/<fightid>", methods=['GET', 'POST'])
-@login_required
-def edit_fight(fightid):
-    fight=models.Fight.get(models.Fight.id == fightid)
-    form = forms.FightForm()
-    if form.validate_on_submit():
-        fight.name = form.name.data
-        fight.description = form.description.data
-        fight.save()
-        fights = models.Fight.select().where(models.Fight.user == current_user.id)
-        return render_template('profile.html', user=current_user, form=form, fights=fights)
-
-    form.name.data = fight.name
-    form.description.data = fight.description
-    return render_template('edit_fight.html', user=current_user, form=form)
 
 #--------------
 # Create fight
@@ -237,11 +243,11 @@ def add_fight():
     fights = models.Fight.select().where(models.Fight.user == current_user.id)
     if form.validate_on_submit():
         models.Fight.create(
-            name=form.name.data,
-            description=form.description.data.strip(),
-            user = current_user.id)
-        return render_template('dashboard.html', user=current_user, form=form, fight=fights)
-    return render_template('add_fight.html', user=current_user, form=form, fight=fights)
+        name=form.name.data,
+        description=form.description.data.strip(),
+        user = current_user.id)
+        return render_template('dashboard.html', user=current_user, form=form, fights=fights)
+    return render_template('add_fight.html', user=current_user, form=form, fights=fights)
 
 #---------------
 # Fights
@@ -265,9 +271,11 @@ def page_not_found(e):
 # --------------------------------------------------------
 
 class FileContents(db.Model): 
+    __tablename__= "file_contents"
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(300))
-    data = db.Column(db.LargeBinary)
+    name = db.Column(db.String(300), unique=True)
+    data = db.Column(db.LargeBinary, unique=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
 class User(db.Model):
     __tablename__ = "user"
@@ -275,7 +283,7 @@ class User(db.Model):
     username = db.Column(db.String(15), unique=True)
     email = db.Column(db.String(120), unique=True)
     password = db.Column(db.String)
-    age = db.Column(db.String)
+    age = db.Column(db.Integer)
     location = db.Column(db.String)
     height = db.Column(db.Integer)
     weight = db.Column(db.Integer)
