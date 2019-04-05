@@ -11,7 +11,8 @@
     overflow: -moz-hidden-unscrollable;
     overflow: hidden;
     overflow-x: hidden;
-    position: absolute;
+    position: fixed;
+    top: 0;
     z-index: 100;
   }
   .bs-call {
