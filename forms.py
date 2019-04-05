@@ -1,8 +1,9 @@
 from flask_wtf import FlaskForm as Form
+from flask_wtf.file import FileField, FileAllowed
 from wtforms import TextField, TextAreaField, SubmitField, StringField, PasswordField, IntegerField, FileField
 from wtforms import SelectField
 from wtforms.validators import (DataRequired, Regexp, ValidationError, Email, Length, EqualTo, NumberRange)
-from flask_login import UserMixin
+from flask_login import UserMixin, current_user
 from flask_bcrypt import generate_password_hash
 from models import User
 
@@ -66,31 +67,50 @@ class RegisterForm(Form):
         validators = [
             DataRequired()
         ])
+    about = TextAreaField(
+        'About me...',
+        
+    )
 
 class LoginForm(Form):
     email = StringField('Email', validators=[DataRequired(), Email() ])
     password = PasswordField('Password', validators=[DataRequired() ])
 
 class FightForm(Form):
-    name = TextField("Title")
-    description = TextAreaField("Fight requirements: \n length: \n rules: \n Misc notes:")
+    name = TextField("Title", validators = [
+            DataRequired()
+        ])
+    description = TextAreaField("Fight requirements: \n length: \n rules: \n Misc notes:",validators = [
+            DataRequired()
+        ])
     submit = SubmitField('Fight!')
 
 class UploadForm(Form):
-    name = FileField('Image')
+    picture = FileField('Update Profile Picture', validators = [ FileAllowed(['jpg', 'png', 'jpeg', 'gif']) ])
     Submit = SubmitField('Upload')
 
 class EditFightForm(Form):
     name = TextField("By:")
     title = TextField("Title")
-    description = TextAreaField("Content")
+    description = TextAreaField("Content", validators = [
+            DataRequired()
+        ])
     submit = SubmitField('Edit Fight request')
 
 class UpdateUserForm(Form):
-    # username = TextField("Username")
-    # email = TextField("Email")
-    # name = TextField("Name")
-    height = IntegerField()
-    weight = IntegerField()
+    username = StringField("Username", validators=[DataRequired(),Length(min=2, max=20), ])
+    email = StringField("Email", validators=[DataRequired(),Email(), ])
+    name = StringField("Full Name")
+    height = IntegerField('Inches')
+    weight = IntegerField("lbs")
     style = TextAreaField("Fighting Style")
-    submit = SubmitField('Edit Profile')
+    about = TextAreaField('Tell us a little about yourself...')
+    submit = SubmitField('Save')
+
+    def name_exists(form, field):
+        if User.select().where(User.username == field.data).exists():
+            raise ValidationError("User with this username already exists!")
+
+    def email_exists(form, field):
+        if User.select().where(User.email == field.data).exists():
+            raise ValidationError("Someone with this email is already in the DB")

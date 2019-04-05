@@ -1,21 +1,25 @@
 {% extends "layout.html" %} {% block body %}
 <a href="/addfight">Fight?</a>
 <hr />
-{% for fight in fights %}
-<div class="fight">
-  <article class="message">
+<div class='fight-container'>
+{% for fight in fights|sort(reverse=True,attribute='timestamp') %}
+  <div class="message">
     <div class="message-header">
-      <div class="message-title">
+      <span class="message-title">
         {{ fight.name }}
-      </div>
-      <div class="icons">
+      </span>
+      <div class="dash-icons">
         {{ fight.timestamp }}
-        <a href="{{url_for('edit_fight', fightid=fight.id)}}"
-          ><i class="far fa-edit" title="edit"></i
-        ></a>
-        <a href="{{url_for('delete_fight', fightid=fight.id)}}"
-          ><i class="fas fa-backspace" title="delete"></i
-        ></a>
+        {% if user.id is eq (fight.user_id) %}
+          <a href="{{url_for('edit_fight', fightid=fight.id)}}">
+            <i class="far fa-edit" title="edit"></i>
+          </a>
+          <a href="{{url_for('delete_fight', fightid=fight.id)}}">
+            <i class="far fa-minus-square"></i>
+          </a>
+        {% else %}
+          <p>Match check goes here</p>
+        {% endif %}
       </div>
     </div>
     <div class="message-body">
@@ -23,4 +27,6 @@
     </div>
   </article>
 </div>
-{% endfor %} {% endblock %}
+{% endfor %} 
+
+{% endblock %}

@@ -24,15 +24,17 @@ class User(UserMixin, Model):
     height = IntegerField()
     weight = IntegerField()
     style = CharField(max_length=20)
+    about = CharField(max_length=450)
+    image_file = CharField(max_length=20, default='tyler2.jpg')
     # location = CharField()
-    joined_at = DateTimeField(default=date.today().strftime("%Y-%m-%d"))
+    joined_at = DateTimeField(default=date.today().strftime("%d/%B/%Y"))
     class Meta:
         database = DATABASE
         order_by = ('-timestamp',)
     
     #  function that creates a new user
     @classmethod
-    def create_user(cls, username, email , password, name, height, weight, style):
+    def create_user(cls, username, email , password, name, height, weight, style, about, image_file):
         try:
             cls.create(
                 username = username,
@@ -41,7 +43,9 @@ class User(UserMixin, Model):
                 name = name,
                 height = height,
                 weight = weight,
-                style = style
+                style = style,
+                about = about,
+                image_file = image_file
             )
         except IntegrityError:
             raise ValueError("User already exists")

@@ -3,6 +3,16 @@
   {{ form.hidden_tag() }}
 
   <div class="field">
+    {{ form.email.label }}
+    {{ form.email(class_="textarea") }}
+  </div>
+
+  <div class="field">
+    {{ form.username.label }}
+    {{ form.username(class_="textarea") }}
+  </div>
+
+  <div class="field">
     {{ form.height.label }}
     {{ form.height(class_="textarea") }}
   </div>
@@ -17,6 +27,10 @@
     {{ form.style(class_="textarea") }}
   </div>
 
+  <div class="field">
+    {{ form.about.label }}
+    {{ form.about(class_='textarea')}}
+  </div>
   {{ form.submit(class_="button") }}
 </form>
 {% endblock %}

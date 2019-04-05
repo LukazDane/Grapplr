@@ -1,5 +1,6 @@
+import secrets
 from flask import Flask, g
-from flask import render_template, flash, redirect, url_for, session, request, abort 
+from flask import render_template, flash, redirect, url_for, session, request, abort, send_file
 from flask import make_response as response
 from forms import FightForm
 from werkzeug.utils import secure_filename
@@ -7,6 +8,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from flask_bcrypt import check_password_hash
 from peewee import fn
+from io import BytesIO
 import os
 import forms 
 import models
@@ -119,18 +121,28 @@ def register():
             name = form.name.data,
             height = form.height.data,
             weight = form.weight.data,
-            style = form.style.data
+            style = form.style.data,
+            about = form.about.data
             )
         return redirect('/login')
     return render_template('register.html', title="Register", form=form)
 #-----------------
 # Profile
 #-----------------
+def save_picture(form_picture):
+    random_hex = secrets.token_hex(8)
+    _, f_name, f_ext = os.path.splitext(form_picture.filename)
+    pictrue_fn = random_hex + f_ext
+    picture_path = os.path.join(app.root_path, 'static/profile_pics', picture_fn)
+    form_picture.save(picture_path)
+    return pictrue_fn
+
 @app.route('/profile/')
 @app.route('/profile', methods=['GET','POST'])
 @login_required
 def profile():
-    return render_template('profile.html', user=current_user)
+    image_file = url_for('static', filename='profile_pics/' + current_user.image_file)
+    return render_template('profile.html', user=current_user, title=profile, image_file=image_file)
 
 @app.route('/profile/upload')
 @login_required
@@ -142,12 +154,18 @@ def imgupload():
 def upload():
     form = forms.UploadForm()
     file = request.files['inputFile']
-    newFile = FileContents(name=file.filename, data=file.read())
-    db.session.add(newFile)
-    db.session.commit()
-    flash('Saved ' + file.filename + ' to the database!')
-    return redirect(url_for('profile'))
-    # return render_template('upload.html', form = form)
+    user = models.User.get(current_user.id)
+    if form.validate_on_submit():
+        if form.picture.data:
+            picture_file = save_picture(form.picture.data)
+            current_user.image_file = picture_file
+        newFile = FileContents(name=file.filename, data=file.read(), user_id=current_user.id, form=form)
+        db.session.add(newFile)
+        db.session.commit()
+        flash('Saved ' + file.filename + ' to the database!')
+        return redirect(url_for('profile'), form=form)
+    image_file = url_for('static', filename='profile_pics/' + current_user.image_file)
+    return render_template('upload.html', form=form, image_file=image_file)
 
 #edit profile
 @app.route('/editProfile', methods=['GET', 'POST'])
@@ -156,13 +174,22 @@ def edit_profile():
     form = forms.UpdateUserForm()
     user = models.User.get(current_user.id)
     if form.validate_on_submit():
+        user.email = form.email.data
+        user.username = form.username.data
         user.height = form.height.data
-        user.weight = form.height.data
+        user.weight = form.weight.data
         user.style = form.style.data
+        user.about = form.about.data
         user.save()
-        flash('Profile has been updated')
+        flash('Profile has been updated', 'success')
         return redirect(url_for('profile'))
-
+    elif request.method == 'GET':
+        form.email.data = current_user.email
+        form.username.data = current_user.username
+        form.height.data = current_user.height
+        form.weight.data = current_user.weight
+        form.style.data = current_user.style
+        form.about.data = current_user.about
     return render_template('edit_profile.html', form = form)
 
 
@@ -174,21 +201,21 @@ def edit_profile():
 @login_required
 def dashboard():
     form = forms.FightForm()
-    fights = models.Fight.select().where(models.Fight.user != current_user.id)
+    fights = models.Fight.select()
     if form.validate_on_submit():
         models.Fight.create(
         name=form.name.data.strip(),
         description=form.description.data.strip(), 
         user = current_user.id)
-        return render_template("dashboard.html", user=current_user, form=form, fights=fights)
-    return render_template('dashboard.html', user=current_user)
+        return redirect(url_for("dashboard.html", user=current_user, form=form, fights=fights))
+    return render_template('dashboard.html', user=current_user, form=form, fights=fights)
 
 #delete fight
 @app.route("/dashboard/<fightid>")
 @login_required
 def delete_fight(fightid):
     # form = forms.fightForm()
-    fight = models.Fight.get(fightid)
+    fight = models.Fight.get(models.Fight.id == fightid)
     fight.delete_instance()
     return redirect(url_for('dashboard'))
 
@@ -203,7 +230,7 @@ def edit_fight(fightid):
         fight.description = form.description.data
         fight.save()
         fights = models.Fight.select().where(models.Fight.user == current_user.id)
-        return render_template("dashboard.html", user=current_user, form=form, fights=fights)
+        return redirect(url_for("dashboard", user=current_user, form=form, fights=fights))
     
     form.name.data = fight.name
     form.description.data = fight.description
@@ -246,7 +273,7 @@ def add_fight():
         name=form.name.data,
         description=form.description.data.strip(),
         user = current_user.id)
-        return render_template('dashboard.html', user=current_user, form=form, fights=fights)
+        return redirect(url_for('dashboard', user=current_user, form=form, fights=fights))
     return render_template('add_fight.html', user=current_user, form=form, fights=fights)
 
 #---------------
@@ -287,8 +314,9 @@ class User(db.Model):
     location = db.Column(db.String)
     height = db.Column(db.Integer)
     weight = db.Column(db.Integer)
-    about = db.Column(db.String)
-    style= db.Column(db.String)
+    style = db.Column(db.String)
+    about = db.Column(db.String(450))
+    image_file = db.Column(db.String(20), nullable=False, default='tyler2.jpg')
 
 #     def __init__(self, email):
 #         self.email = email

@@ -1,0 +1,124 @@
+/* remove all content for non mobile screen size */
+@media screen and (min-device-width: 769px) {
+  /* * {
+    display: none;
+  } */
+  * body {
+    display: block;
+  }
+  #bs-overlay {
+    display: block !important;
+    height: 100vh;
+    width: 100vw;
+    background-color: #601f1f;
+    overflow: -moz-hidden-unscrollable;
+    position: absolute;
+    z-index: 100;
+  }
+  .bs-call {
+    text-align: center;
+    color: white;
+    background-color: black;
+    margin: 2rem;
+    padding: 1rem;
+    transform: skewX(-10deg);
+    border-top: white solid 1rem;
+    border-right: white solid 1rem;
+    border-bottom: white solid 1rem;
+    border-left: white solid 1rem;
+    border-radius: 50px 50px 50px 0px;
+    -moz-box-shadow: -14px 12px 11px 6px #000;
+    -webkit-box-shadow: -14px 12px 11px 6px #000;
+    box-shadow: -14px 12px 11px 6px #000;
+  }
+}
+#bs-overlay {
+  display: none;
+}
+/* end bs overlay */
+
+/* layout page */
+.page-footer {
+  position: sticky;
+  width: 100vw;
+  bottom: 0;
+  background-color: #601f1f !important;
+}
+/* end layout page */
+/* Profile page */
+/* .logout {
+  border: 1px solid black;
+  position: absolute;
+}
+.upload {
+  border: 1px solid black;
+  position: absolute;
+  right: 0;
+} */
+.prof-img-a {
+  border: 1px solid black;
+  width: 100vw;
+  height: 50vh;
+  background-image: url("{{ image_file }}");
+  /* background-attachment: fixed; */
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  border-bottom: 5px solid #601f1f;
+  margin-bottom: -1vh;
+}
+
+.prof-username {
+  margin: 0.5em;
+  font-size: 2.5rem;
+  text-align: -webkit-center;
+}
+.icons {
+  text-align: center;
+  height: 1vh;
+  background-color: #601f1f;
+}
+
+.fas {
+  font-size: 2rem;
+  color: #fff;
+  /* border: 1px solid crimson; */
+  /* border-radius: 100%; */
+  padding: 0.75rem;
+  height: 3.5rem;
+  width: 3.5rem;
+  background-color: #601f1f;
+  /* border-bottom: 5px solid black; */
+  /* border-right: 5px solid black; */
+  transform: rotate(45deg);
+  margin: -3.5vh;
+}
+
+.stats-container {
+  border: 1px solid #601f1f;
+  padding: 2rem;
+  font-weight: 800;
+}
+.about-me {
+  min-height: 10vh;
+}
+/* end prifile page */
+/* Dashboard */
+.fight-container {
+  min-height: 90vh;
+}
+.fight {
+  margin: 1rem;
+}
+.message-header {
+  color: #fff;
+  background-color: #601f1f;
+}
+.message {
+  margin: 2rem;
+  min-height: 10vh;
+  max-height: 15vh;
+  overflow: scroll;
+}
+
+/* end dashboard */
