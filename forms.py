@@ -67,6 +67,9 @@ class RegisterForm(Form):
         validators = [
             DataRequired()
         ])
+    image_file = FileField(
+        'Profile pic',
+    )
     about = TextAreaField(
         'About me...',
         
@@ -105,6 +108,7 @@ class UpdateUserForm(Form):
     weight = IntegerField("lbs")
     style = TextAreaField("Fighting Style")
     about = TextAreaField('Tell us a little about yourself...')
+    image_file = FileField('default.png')
     submit = SubmitField('Save')
 
     def name_exists(form, field):

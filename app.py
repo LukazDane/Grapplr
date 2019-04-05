@@ -122,10 +122,12 @@ def register():
             height = form.height.data,
             weight = form.weight.data,
             style = form.style.data,
-            about = form.about.data
+            about = form.about.data,
+            image_file = form.image_file.data
             )
         return redirect('/login')
-    return render_template('register.html', title="Register", form=form)
+    image_file = url_for('static', filename='profile_pics/' + current_user.image_file)
+    return render_template('register.html', title="Register", form=form, image_file=image_file)
 #-----------------
 # Profile
 #-----------------
@@ -180,6 +182,7 @@ def edit_profile():
         user.weight = form.weight.data
         user.style = form.style.data
         user.about = form.about.data
+        user.image_file = form.about.data
         user.save()
         flash('Profile has been updated', 'success')
         return redirect(url_for('profile'))
@@ -190,6 +193,7 @@ def edit_profile():
         form.weight.data = current_user.weight
         form.style.data = current_user.style
         form.about.data = current_user.about
+        form.image_file = current_user.image_file
     return render_template('edit_profile.html', form = form)
 
 
@@ -241,9 +245,11 @@ def edit_fight(fightid):
 #--------------
 @app.route('/swipe/')
 @app.route('/swipe', methods=['GET','POST'])
-@login_required
+@login_required 
 def swipe():
-    return render_template('swipe.html', user=current_user)
+    users = models.User.select()
+
+    return render_template('swipe.html', users=users )
 
 #--------------
 # Other Users

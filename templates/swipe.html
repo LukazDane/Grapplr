@@ -1,11 +1,11 @@
 {% extends "layout.html" %} {% block body %}
+<h3>Swipe</h3>
+<hr />
+{% for user in users %} {% if user.id is eq (current_user.id) %}
+<!-- <div class="warning"></div>
+  <h1>No more users</h1>
+</div> -->
+{% else %}
 <div>user img card</div>
-<div>
-  User names:<a href="{{ url_for('user', username=current_user.username) }}"
-    >Self</a
-  >
-</div>
-<div>User stats</div>
-<div>√</div>
-<div>X</div>
-{% endblock %}
+<h3>{{ user.username }}</h3>
+{% endif %} {% endfor %} {% endblock %}
