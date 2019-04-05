@@ -11,6 +11,8 @@
       media="screen"
       href="/static/style.css"
     />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
 
 
@@ -31,9 +33,9 @@
     <!-- Hi {{ current_user.username }}! -->
     <footer class='page-footer'>
       <ul class='tabs tabs-transparent'>
-        <li class='tab'><a href={{url_for('profile')}}>User</a></li>
-        <li class='tab'><a href={{url_for('dashboard')}}>Dash</a></li>
-        <li class='tab'><a href={{url_for('swipe')}}>Swipe</a></li>
+        <li class='tab'><a href={{url_for('profile')}}><i class="far fa-user-circle"></i></a></li>
+        <li class='tab'><a href={{url_for('dashboard')}}><i class="far fa-list-alt"></i></a></li>
+        <li class='tab'><a href={{url_for('swipe')}}><i class="far fa-hand-pointer"></i></a></li>
       </ul>
     </footer>
     {% endif %}
