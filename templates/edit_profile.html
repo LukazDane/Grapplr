@@ -24,12 +24,22 @@
 
   <div class="field">
     {{ form.style.label }}
-    {{ form.style(class_="textarea") }}
+    {{ form.style(class_="select") }}
   </div>
 
   <div class="field">
     {{ form.about.label }}
     {{ form.about(class_='textarea')}}
+  </div>
+
+  <div class="field">
+      {{ form.picture.label }}
+      {{ form.picture(class_='form-control-file')}}
+      {% if form.picture.errors %}
+          {% for error in form.picture.errors %}
+              <span class="text-danger">{{ error }}</span></br>
+          {% endfor %}
+      {% endif %}
   </div>
   {{ form.submit(class_="button") }}
 </form>

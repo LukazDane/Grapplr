@@ -1,20 +1,12 @@
-{% extends "layout.html" %} {% block body %} {% for user in users %} {% if
-user.id is eq (current_user.id) %}
-<!-- <div class="warning"></div>
-  <h1>No more users</h1>
-</div> -->
-{% else %}
-<div class="user-card">
-  <div class="user-img"></div>
-  <div class="user-stats">
-    <div class="user-header">
-      <p class="headline">"{{ user.style }}"</p>
-      <p class="username">{{ user.username }}</p>
-    </div>
-    <p class="headline"></p>
-    <p class="stats"><span> Height:</span> {{ user.height }}<span>in</span></p>
-    <p class="stats"><span> Weight:</span> {{ user.weight }}<span>lbs</span></p>
-    <p class="stats"><span> Style:</span> {{ user.style }}</p>
+{% extends "layout.html" %} {% block body %}
+<div class="user">
+  {% for user in users %} {% if user.id is eq (current_user.id) %} {% else %}
+  <div class="grid-img">
+    <a href="{{url_for('user', username=user.username)}}">
+      <img class="grid-img-a" src=/static/profile_pics/{{ user.image_file }}
+      />
+    </a>
   </div>
+  {% endif %} {% endfor %}
 </div>
-{% endif %} {% endfor %} {% endblock %}
+{% endblock %}

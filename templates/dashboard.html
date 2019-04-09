@@ -6,27 +6,40 @@
   <div class="message">
     <div class="message-header">
       <span class="message-title">
-        {{ fight.name }}
+          
+        {{ fight.user.username }} : {{ fight.name }}
+        
       </span>
-      <div class="dash-icons">
-        {{ fight.timestamp }}
+      <div class="dash-icons row">
+        <div class="col s6">{{ fight.timestamp }}</div>
         {% if user.id is eq (fight.user_id) %}
+        <div class='icons col s6'>
           <a href="{{url_for('edit_fight', fightid=fight.id)}}">
             <i class="far fa-edit" title="edit"></i>
           </a>
           <a href="{{url_for('delete_fight', fightid=fight.id)}}">
             <i class="far fa-minus-square"></i>
           </a>
+          </div>
         {% else %}
-          <p>Match check goes here</p>
+          <div class='col s6'>X</div>
         {% endif %}
       </div>
     </div>
     <div class="message-body">
       {{ fight.description }}
     </div>
+    <div class='message-location'>
+      <ul class="collapsible popout">
+        <li>
+          <div class="collapsible-header"><i class="material-icons">place</i>Location</div>
+          <div class="collapsible-body"><span>Lorem ipsum dolor sit amet.</span></div>
+        </li>
+      </ul>
+    </div>
   </article>
 </div>
 {% endfor %} 
 
 {% endblock %}
+

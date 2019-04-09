@@ -1,8 +1,8 @@
-{% extends "layout.html" %} {% block content %}
-<h1>User: {{ user.username }}</h1>
+{% extends "layout.html" %} {% block body %}
+<h1>User: {{ username }}</h1>
 <hr />
-{% for fight in fights %}
-<p>
-  {{ fight.name.username }} says: <b>{{ fight.description }}</b>
-</p>
-{% endfor %} {% endblock %}
+<div class="prof-img">
+  <img class="prof-img-a" src=/static/profile_pics/{{ users.image_file }}
+  />
+</div>
+{% endblock %}

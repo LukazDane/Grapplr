@@ -1,3 +1,8 @@
+body {
+  background-color: #303030;
+  padding-bottom: 10vh;
+}
+
 /* remove all content for non mobile screen size */
 @media screen and (min-device-width: 769px) {
   * body {
@@ -39,10 +44,19 @@
 
 /* layout page */
 .page-footer {
-  position: sticky;
+  position: fixed;
   width: 100vw;
   bottom: 0;
   background-color: #601f1f !important;
+}
+
+.row .col.s4 {
+  text-align: center;
+  color: white;
+}
+
+.row .col.s4 a {
+  color: white;
 }
 /* end layout page */
 /* Profile page */
@@ -59,12 +73,12 @@
   border: 1px solid black;
   width: 100vw;
   height: 50vh;
-  background-image: url("{{ image_file }}");
+  /* background-image: url('{{url_for("{{ image_file }}")}}'); */
   /* background-attachment: fixed; */
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
-  border-bottom: 5px solid #601f1f;
+  /* border-bottom: 5px solid #601f1f; */
   margin-bottom: -1vh;
 }
 
@@ -115,37 +129,60 @@
 .message-header {
   color: #fff;
   background-color: #601f1f;
+  padding-left: 1rem;
+  font-weight: 600;
 }
 .message {
   margin: 2rem;
   min-height: 10vh;
-  max-height: 15vh;
-  overflow: scroll;
+  /* max-height: 15vh; */
+  background-color: #212121;
+  border-radius: 5px;
 }
-
-/* end dashboard */
-/* swipe */
-.user-card {
-  border: 1px solid black;
-  height: 85vh;
-  margin: 2rem;
-}
-.user-img {
-  border: 1px solid black;
-  height: 45vh;
-  background-color: gainsboro;
-}
-.user-stats {
-  border: 1px solid black;
-  height: 40vh;
-  text-align: -webkit-center;
-  font-size: x-large;
-}
-.user-header {
-  background-color: #601f1f;
+.message-body {
+  background-color: #212121;
   color: white;
+  max-height: 10vh;
+  overflow: scroll;
+  padding: 0 1rem;
 }
-.username,
-.headline {
+.icons.col.s6 {
+  text-align: end;
+}
+.far.fa-edit,
+.far.fa-minus-square {
+  font-size: medium;
+}
+.dash-icons.row {
+  margin-bottom: 0;
+}
+.collapsible {
   margin: 0;
 }
+.collapsible-header {
+  padding: 0rem !important;
+  background-color: #212121 !important;
+  border-bottom: 0px solid #ddd !important;
+  color: white;
+}
+.collapsible.popout > li {
+  -webkit-box-shadow: none !important;
+  box-shadow: none !important;
+}
+/* end dashboard */
+/* swipe */
+
+.grid-img {
+  /* height: 0;
+  padding-bottom: 25%; */
+  /* width: 25vw; */
+  display: inline-grid;
+}
+
+.grid-img-a {
+  /* perfect square - iPhone X */
+  width: 24vw;
+  height: 11.085vh;
+}
+
+/* end swipe */
