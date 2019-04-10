@@ -30,6 +30,7 @@ class User(UserMixin, Model):
     image_file = CharField(default='tyler2.jpg')
     # location = CharField()
     joined_at = DateTimeField(default=date.today().strftime("%d/%B/%Y"))
+    # challanged = db.relationship('User', secondary=user_matches, primaryjoin=(user_matches.c.user_id_1 == id), secondaryjoin=(user_matches.c.user_id_2 == id), backref=db.backref('user_matches', lazy='dynamic'), lazy='dynamic')
     class Meta:
         database = DATABASE
         order_by = ('-timestamp',)
@@ -52,24 +53,6 @@ class User(UserMixin, Model):
         except IntegrityError:
             raise ValueError("User already exists")
 
-# class User(db.Model, UserMixin):
-#     __table_args__ = {'extend_existing': True} 
-#     id = db.Column(db.Integer, primary_key=True)
-#     username = db.Column(db.String(20), unique=True, nullable=False)
-#     email = db.Column(db.String(120), unique=True, nullable=False)
-#     image_file = db.Column(db.String(20), nullable=False, default='default.jpg')
-#     password = db.Column(db.String(60), nullable=False)
-#     height = db.Column(db.Integer, nullable=False)
-#     weight = db.Column(db.Integer, nullable=False)
-#     style = db.Column(db.String, nullable=False)
-#     about = db.Column(db.String(450), unique=True, nullable=False)
-    
-#     class Meta:
-#         database = DATABASE
-#         order_by = ('-timestamp',)
-
-#     def __repr__(self):
-#         return f"User('{self.username}', '{self.email}', '{self.image_file}, {self.height}, {self.weight}, {self.style}, {self.about}')"
 
 class Fight(Model):
     name = CharField(max_length=10)
@@ -81,14 +64,23 @@ class Fight(Model):
         database = DATABASE
         order_by = ('-timestamp',)
 
-class FileContents(Model): 
-    __table_args__ = {'extend_existing': True} 
-    name = CharField(max_length=300, unique=True)
-    # data = db.Column(db.LargeBinary, unique=True)
-    user_id = ForeignKeyField(User.id, backref='filecontents')
-    user = ForeignKeyField(User, backref="filecontents")
+# class FileContents(Model): 
+#     __table_args__ = {'extend_existing': True} 
+#     name = CharField(max_length=300, unique=True)
+#     # data = db.Column(db.LargeBinary, unique=True)
+#     user_id = ForeignKeyField(User.id, backref='filecontents')
+#     user = ForeignKeyField(User, backref="filecontents")
 
+# class User_Matches(Model):
+#     __table_args__ = {'extend_existing': True}
+#     user_id_1 = ForeignKeyField(User.id, backref='usermatches')
+#     user_id_2 = ForeignKeyField(User.id, backref='usermatches')
+#     match_date = DateTimeField(default=datetime.now().strftime("%Y-%m-%d %H:%M"))
+    
 
+#     class Meta:
+#         database = DATABASE
+#         order_by = ('-timestamp',)
 
 def initialize():
     DATABASE.connect()

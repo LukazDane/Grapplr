@@ -279,7 +279,7 @@ def user(username):
 @login_required
 def add_fight():
     form = forms.FightForm()
-    fights = models.Fight.select().where(models.Fight.user == current_user.id & current_user.username)
+    fights = models.Fight.select().where(models.Fight.user == current_user.id)
     if form.validate_on_submit():
         models.Fight.create(
         name=form.name.data,
