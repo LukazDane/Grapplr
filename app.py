@@ -198,6 +198,7 @@ def edit_profile():
         user.weight = form.weight.data
         user.style = form.style.data
         user.about = form.about.data
+        user.location = form.location.data
         if form.picture.data:
             picture_file = save_picture(form.picture.data)
             current_user.image_file = picture_file
@@ -212,6 +213,7 @@ def edit_profile():
         form.weight.data = current_user.weight
         form.style.data = current_user.style
         form.about.data = current_user.about
+        form.location.data = current_user.location
         image_file = url_for('static', filename='profile_pics/' + current_user.image_file)
         return render_template('edit_profile.html', form=form, image_file=image_file)
     return redirect(url_for('profile'))
@@ -255,7 +257,6 @@ def edit_fight(fightid):
         fight.save()
         fights = models.Fight.select().where(models.Fight.user == current_user.id)
         return redirect(url_for("dashboard", user=current_user, form=form, fights=fights, username=current_user))
-    
     form.name.data = fight.name
     form.description.data = fight.description
     return render_template("edit_fight.html", user=current_user, form=form, username=current_user)
@@ -277,9 +278,10 @@ def swipe():
 @app.route('/profile/<username>', methods=['GET'])
 @login_required
 def user(username):
+    follows = models.Follow.select()
     users = models.User.get(models.User.username == username)
     image_file = url_for('static', filename='profile_pics/' + User.image_file)
-    return render_template('user.html', username=username, user=user, users=users, fights=fights, image_file=image_file)
+    return render_template('user.html',follows=follows, username=username, user=user, users=users, fights=fights, image_file=image_file)
 
 #--------------
 # Create fight
@@ -394,23 +396,24 @@ class User(UserMixin, db.Model):
             return False
         return self.followers.filter_by(
             follower_id=user.id).first() is not None
-            
+
+@app.route('/follow/')
 @app.route('/follow/<username>')
 @login_required
 def follow(username):
-    user = User.query.filter_by(username=username).first()
+    user = models.User.get(models.User.username == username)
     if user is None:
         flash('Invalid user.')
         return redirect(url_for('index'))
     if current_user.is_following(user):
         flash('You are already following this user.')
-        return redirect(url_for('user', username=username))
+        return redirect(url_for('swipe', username=username))
     current_user.follow(user)
     db.session.commit()
     flash('You are now following %s.' % username)
-    return redirect(url_for('user', username=username))
+    return redirect(url_for('swipe', username=username))
 
-
+@app.route('/unfollow/')
 @app.route('/unfollow/<username>')
 @login_required
 def unfollow(username):
@@ -420,11 +423,11 @@ def unfollow(username):
         return redirect(url_for('index'))
     if not current_user.is_following(user):
         flash('You are not following this user.')
-        return redirect(url_for('user', username=username))
+        return redirect(url_for('swipe', username=username))
     current_user.unfollow(user)
     db.session.commit()
     flash('You are not following %s anymore.' % username)
-    return redirect(url_for('user', username=username))
+    return redirect(url_for('swipe', username=username))
 
 
 @app.route('/followers/<username>')

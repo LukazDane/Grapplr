@@ -30,6 +30,15 @@ class User(UserMixin, Model):
     class Meta:
         database = DATABASE
         order_by = ('-timestamp',)
+class Follow(Model):
+    __tablename__ = "fight"
+    __table_args__ = {'extend_existing': True} 
+
+    follower_id = ForeignKeyField(User.id, backref="follower")
+    followed_id = ForeignKeyField(User.id, backref="followed")
+    class Meta:
+            database = DATABASE
+            order_by = ('-timestamp',)
 
 class Fight(Model):
     __tablename__ = "fight"
@@ -49,5 +58,5 @@ def initialize():
     # db.create_all()
     
     DATABASE.connect()
-    DATABASE.create_tables([User, Fight], safe=True)
+    DATABASE.create_tables([User, Fight, Follow], safe=True)
     DATABASE.close()
