@@ -101,16 +101,3 @@ function initMap() {
       autocomplete.setOptions({ strictBounds: this.checked });
     });
 }
-
-$(document).ready(function() {
-  $("#user_challangers_display_button").click(function() {
-    console.log("hi");
-    $(".user_followings").hide();
-    $(".user_challangers").show();
-  });
-  $("#user_followings_display_button").click(function() {
-    console.log("hi");
-    $(".user_challangers").hide();
-    $(".user_followings").show();
-  });
-});

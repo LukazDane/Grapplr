@@ -1,12 +1,16 @@
 import secrets
 from flask import Flask, g
-from flask import render_template, flash, redirect, url_for, session, request, abort, send_file
+from flask import render_template, flash, redirect, url_for, session, request, abort, send_file, make_response, current_app
 from wtforms import TextField, TextAreaField, SubmitField, StringField, PasswordField, IntegerField, FileField
 from flask import make_response as response
 from werkzeug.utils import secure_filename
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user, UserMixin
 from flask_bcrypt import check_password_hash
+import datetime
+from datetime import date
+from datetime import time
+from datetime import datetime, timedelta
 from peewee import fn
 from io import BytesIO
 from PIL import Image
@@ -22,7 +26,7 @@ from googleplaces import GooglePlaces, types, lang
 
 
 #----------------------------
-# Oauth2/Rauth stuff
+# Oauth2/Rauth stuff: future
 #----------------------------
 # twitter_blueprint = make_twitter_blueprint(api_key='', api_secret='')
 # github_blueprint = make_github_blueprint(client_id='', client_secret='')
@@ -227,20 +231,16 @@ def dashboard():
         name=form.name.data.strip(),
         description=form.description.data.strip(), 
         user=current_user.id
-        # username=models.User.username
         )
         return redirect(url_for("dashboard.html", user=current_user, form=form, fights=fights))
-    # image_file = url_for('static', filename='profile_pics/' + current_user.image_file)
     return render_template('dashboard.html', user=current_user, form=form, fights=fights)
 
 #delete fight
 @app.route("/dashboard/<fightid>")
 @login_required
 def delete_fight(fightid):
-    # form = forms.fightForm()
     fight = models.Fight.get(models.Fight.id == fightid)
     fight.delete_instance()
-    # image_file = url_for('static', filename='profile_pics/' + current_user.image_file)
     return redirect(url_for('dashboard'))
 
 #edit fight
@@ -279,33 +279,8 @@ def swipe():
 def user(username):
     users = models.User.get(models.User.username == username)
     image_file = url_for('static', filename='profile_pics/' + User.image_file)
-    username=username
-    user_challangers = models.Challanger.select(models.Challanger.user_id)
-    user_id=models.Challanger.select(models.Challanger.user_id)
-    return render_template('user.html', username=username, user=user, users=users, fights=fights, image_file=image_file, user_id=user_id)
+    return render_template('user.html', username=username, user=user, users=users, fights=fights, image_file=image_file)
 
-@app.route('/challangers')
-@app.route('/challangers/')
-@app.route('/challangers/<userid>',methods=["GET","POSTS"])
-def user_challangers(userid):
-    print(userid)
-    challanger = models.User.get(models.User.id == userid)
-    models.Challanger.create_user_friend(
-        user=User.id,
-        challanger=challanger.challanger_id
-        )
-
-    return redirect(url_for('user', userid = userid, username=username))
-
-@app.route('/withdraw')
-@app.route('/withdraw/')
-@app.route('/withdraw/<userid>', methods=["GET","POST"])
-def withdraw(userid):
-    withdraw = models.Challanger.delete().where(models.Challanger.user_id == g.user._get_current_object().id and
-    models.Challanger.user_id == userid)
-    withdraw.execute()
-
-    return redirect(url_for('user',userid = userid))
 #--------------
 # Create fight
 #--------------
@@ -345,10 +320,13 @@ def page_not_found(e):
 #---------------------------------------------------------
 
 # --------------------------------------------------------
-challangers = db.Table('challangers',
-    db.Column('challanger_id', db.Integer, db.ForeignKey('user.id')),
-    db.Column('challanged_id', db.Integer, db.ForeignKey('user.id'))
-)
+class Follow(db.Model): 
+    __tablename__='follows'
+    __table_args__ = {'extend_existing': True} 
+    follower_id=db.Column(db.Integer,db.ForeignKey('user.id'),primary_key=True)
+    followed_id=db.Column(db.Integer,db.ForeignKey('user.id'),primary_key=True)
+    timestamp=db.Column(db.DateTime,default=datetime.utcnow)
+
 class User(UserMixin, db.Model):
     __tablename__ = "user"
     __table_args__ = {'extend_existing': True} 
@@ -363,26 +341,132 @@ class User(UserMixin, db.Model):
     style = db.Column(db.String)
     about = db.Column(db.String(450))
     image_file = db.Column(db.String(20), nullable=False, default='tyler2.jpg')
-    
+    followed=db.relationship('Follow',
+                foreign_keys=[Follow.follower_id],
+                backref=db.backref('follower',lazy='joined'),
+                lazy='dynamic',
+                cascade='all, delete-orphan')
+    followers=db.relationship('Follow',foreign_keys=[Follow.followed_id],
+                backref=db.backref('followed',lazy='joined'),lazy='dynamic',
+                cascade='all, delete-orphan')
+    @classmethod
+    def create_user(cls, username, email , password, name, height, weight, style, about, image_file):
+            try:
+                cls.create(
+                    username = username,
+                    email = email,
+                    password = generate_password_hash(password),
+                    name = name,
+                    height = height,
+                    weight = weight,
+                    style = style,
+                    about = about,
+                    image_file = image_file
+                )
+            except IntegrityError:
+                raise ValueError("User already exists")
+    @staticmethod
+    def add_self_follows():
+        for user in User.query.all():
+            if not user.is_following(user):
+                user.follow(user)
+                db.session.add(user)
+                db.session.commit()
+
+    def follow(self, user):
+        if not self.is_following(user):
+            f = Follow(follower=self, followed=user)
+            db.session.add(f)
+
+    def unfollow(self, user):
+        f = self.followed.filter_by(followed_id=user.id).first()
+        if f:
+            db.session.delete(f)
+
+    def is_following(self, user):
+        if user.id is None:
+            return False
+        return self.followed.filter_by(
+            followed_id=user.id).first() is not None
+
+    def is_followed_by(self, user):
+        if user.id is None:
+            return False
+        return self.followers.filter_by(
+            follower_id=user.id).first() is not None
+            
+@app.route('/follow/<username>')
+@login_required
+def follow(username):
+    user = User.query.filter_by(username=username).first()
+    if user is None:
+        flash('Invalid user.')
+        return redirect(url_for('index'))
+    if current_user.is_following(user):
+        flash('You are already following this user.')
+        return redirect(url_for('user', username=username))
+    current_user.follow(user)
+    db.session.commit()
+    flash('You are now following %s.' % username)
+    return redirect(url_for('user', username=username))
 
 
-#     def follow(self, user):
-#         if not self.is_following(user):
-#             self.challanged.append(user)
+@app.route('/unfollow/<username>')
+@login_required
+def unfollow(username):
+    user = User.query.filter_by(username=username).first()
+    if user is None:
+        flash('Invalid user.')
+        return redirect(url_for('index'))
+    if not current_user.is_following(user):
+        flash('You are not following this user.')
+        return redirect(url_for('user', username=username))
+    current_user.unfollow(user)
+    db.session.commit()
+    flash('You are not following %s anymore.' % username)
+    return redirect(url_for('user', username=username))
 
-#     def unfollow(self, user):
-#         if self.is_following(user):
-#             self.challanged.remove(user)
 
-#     def is_following(self, user):
-#         return self.challanged.filter(
-#             challangers.c.challanged_id == user.id).count() > 0
+@app.route('/followers/<username>')
+def followers(username):
+    user = User.query.filter_by(username=username).first()
+    if user is None:
+        flash('Invalid user.')
+        return redirect(url_for('index'))
+    page = request.args.get('page', 1, type=int)
+    pagination = user.followers.paginate(
+        page, per_page=current_app.config['FLASKY_FOLLOWERS_PER_PAGE'],
+        error_out=False)
+    follows = [{'user': item.follower, 'timestamp': item.timestamp}
+               for item in pagination.items]
+    return render_template('followers.html', user=user, title="Followers of",
+                           endpoint='followers', pagination=pagination,
+                           follows=follows)
 
-#     def __init__(self, email):
-#         self.email = email
 
-#     def __repr__(self):
-#         return '<E-mail %r>' % self.email
+@app.route('/followed_by/<username>')
+def followed_by(username):
+    user = User.query.filter_by(username=username).first()
+    if user is None:
+        flash('Invalid user.')
+        return redirect(url_for('index'))
+    page = request.args.get('page', 1, type=int)
+    pagination = user.followed.paginate(
+        page, per_page=current_app.config['FLASKY_FOLLOWERS_PER_PAGE'],
+        error_out=False)
+    follows = [{'user': item.followed, 'timestamp': item.timestamp}
+               for item in pagination.items]
+    return render_template('followers.html', user=user, title="Followed by",
+                           endpoint='followed_by', pagination=pagination,
+                           follows=follows)
+
+@app.route('/followed')
+@login_required
+def show_followed():
+    resp = make_response(redirect(url_for('index')))
+    resp.set_cookie('show_followed', '1', max_age=30*24*60*60)
+    return resp
+
 # user1 = User(username='A1_Steaksauce', name='Anthony', email='tony@tony.com', password='password', height=67, weight=170, style='Drunken fist', about='Saucy')
 # db.session.add(user1)
 if __name__ == '__main__':

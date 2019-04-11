@@ -5,21 +5,26 @@
   />
 
   <!-- add user id to match array -->
-  <div class="col s6 select">
-    <a href="{{ url_for('user_challangers', userid = id) }}">
-      <button class="btn option">
-        Challange
-      </button>
-    </a>
-  </div>
-  <div class="col s6 select">
-    <a href="{{ url_for('withdraw', userid = id) }}">
-      <button class="btn option">
-        Withdraw
-      </button>
-    </a>
-  </div>
   <!-- do nothing or add to pass array -->
+  {% if user != current_user %}
+  <a
+    href="{{ url_for('follow', username=user.username) }}"
+    class="btn btn-primary option"
+    >Fight</a
+  >
+  {% else %}
+  <a
+    href="{{ url_for('unfollow', username=user.username) }}"
+    class="btn btn-default option"
+    >Withdraw</a
+  >
+  {% endif %}
+  <!-- <a href="{{ url_for('followers', username=user.username) }}"> -->
+  Challangers: <span class="">{{ users.followed.count() }}</span>
+  <!-- </a> -->
+  <!-- <a href="{{ url_for('followed_by', username=user.username) }}"> -->
+  Challanged: <span class="">{{ users.follower.count() }}</span>
+  <!-- </a> -->
 </div>
 
 <div class="stats-container">
