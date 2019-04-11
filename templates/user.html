@@ -1,12 +1,24 @@
 {% extends "layout.html" %} {% block body %}
 <div class="row">
-  <h3 class="user-name">{{ username }}</h3>
+  <h3 class="user-name">{{ username }}:{{ users.id }}</h3>
   <img class="prof-img-a" src=/static/profile_pics/{{ users.image_file }}
   />
 
   <!-- add user id to match array -->
-  <p>Challanged: {{ user.challanged_id }} users.</p>
-  <p>Challanged by: {{ user.challanger_id }} users.</p>
+  <div class="col s6 select">
+    <a href="{{ url_for('user_challangers', userid = id) }}">
+      <button class="btn option">
+        Challange
+      </button>
+    </a>
+  </div>
+  <div class="col s6 select">
+    <a href="{{ url_for('withdraw', userid = id) }}">
+      <button class="btn option">
+        Withdraw
+      </button>
+    </a>
+  </div>
   <!-- do nothing or add to pass array -->
 </div>
 

@@ -280,37 +280,32 @@ def user(username):
     users = models.User.get(models.User.username == username)
     image_file = url_for('static', filename='profile_pics/' + User.image_file)
     username=username
-    return render_template('user.html', username=username, user=user, users=users, fights=fights, image_file=image_file)
+    user_challangers = models.Challanger.select(models.Challanger.user_id)
+    user_id=models.Challanger.select(models.Challanger.user_id)
+    return render_template('user.html', username=username, user=user, users=users, fights=fights, image_file=image_file, user_id=user_id)
 
-@app.route('/follow/<username>')
-@login_required
-def follow(username):
-    user = User.query.filter_by(username=username).first()
-    if user is None:
-        flash('User {} not found.'.format(username))
-        return redirect(url_for('index'))
-    if user == current_user:
-        flash('You cannot follow yourself!')
-        return redirect(url_for('user', username=username))
-    current_user.follow(user)
-    db.session.commit()
-    flash('You are following {}!'.format(username))
-    return redirect(url_for('user', username=username))
+@app.route('/challangers')
+@app.route('/challangers/')
+@app.route('/challangers/<userid>',methods=["GET","POSTS"])
+def user_challangers(userid):
+    print(userid)
+    challanger = models.User.get(models.User.id == userid)
+    models.Challanger.create_user_friend(
+        user=User.id,
+        challanger=challanger.challanger_id
+        )
 
-@app.route('/unfollow/<username>')
-@login_required
-def unfollow(username):
-    user = User.query.filter_by(username=username).first()
-    if user is None:
-        flash('User {} not found.'.format(username))
-        return redirect(url_for('index'))
-    if user == current_user:
-        flash('You cannot unfollow yourself!')
-        return redirect(url_for('user', username=username))
-    current_user.unfollow(user)
-    db.session.commit()
-    flash('You are not following {}.'.format(username))
-    return redirect(url_for('user', username=username))
+    return redirect(url_for('user', userid = userid, username=username))
+
+@app.route('/withdraw')
+@app.route('/withdraw/')
+@app.route('/withdraw/<userid>', methods=["GET","POST"])
+def withdraw(userid):
+    withdraw = models.Challanger.delete().where(models.Challanger.user_id == g.user._get_current_object().id and
+    models.Challanger.user_id == userid)
+    withdraw.execute()
+
+    return redirect(url_for('user',userid = userid))
 #--------------
 # Create fight
 #--------------
@@ -368,11 +363,7 @@ class User(UserMixin, db.Model):
     style = db.Column(db.String)
     about = db.Column(db.String(450))
     image_file = db.Column(db.String(20), nullable=False, default='tyler2.jpg')
-    battles = db.relationship(
-        'User', secondary=challangers,
-        primaryjoin=(challangers.c.challanger_id == id),
-        secondaryjoin=(challangers.c.challanged_id == id),
-        backref=db.backref('challangers', lazy='dynamic'), lazy='dynamic')
+    
 
 
 #     def follow(self, user):

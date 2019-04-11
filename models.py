@@ -31,20 +31,20 @@ class User(UserMixin, Model):
         database = DATABASE
         order_by = ('-timestamp',)
     
-    def __repr__(self):
-        return '<User {}>'.format(self.username)
+    # def __repr__(self):
+    #     return '<User {}>'.format(self.username)
 
-    def follow(self, user):
-        if not self.is_following(user):
-            self.challanged.append(user)
+    # def follow(self, user):
+    #     if not self.is_following(user):
+    #         self.challanged.append(user)
 
-    def unfollow(self, user):
-        if self.is_following(user):
-            self.challanged.remove(user)
+    # def unfollow(self, user):
+    #     if self.is_following(user):
+    #         self.challanged.remove(user)
 
-    def is_following(self, user):
-        return self.challanged.filter(
-            challangers.c.challanged_id == user.id).count() > 0
+    # def is_following(self, user):
+    #     return self.challanged.filter(
+    #         challangers.c.challanged_id == user.id).count() > 0
 
 
     #  function that creates a new user
@@ -65,6 +65,19 @@ class User(UserMixin, Model):
         except IntegrityError:
             raise ValueError("User already exists")
 
+class Challanger(Model):
+    user=ForeignKeyField(model=User, backref="user")
+    challanger=ForeignKeyField(model=User,backref="challanger")
+
+    class Meta:
+        database=DATABASE
+    
+    @classmethod
+    def create_user_friend(cls,user,challanger):
+        cls.create(
+            user=user,
+            challanger=challanger
+        )
 
 class Fight(Model):
     name = CharField(max_length=10)
@@ -81,5 +94,5 @@ def initialize():
     # db.create_all()
     # models.initialize()
     DATABASE.connect()
-    DATABASE.create_tables([User, Fight], safe=True)
+    DATABASE.create_tables([User, Fight, Challanger], safe=True)
     DATABASE.close()
