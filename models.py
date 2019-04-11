@@ -5,20 +5,17 @@ from datetime import datetime, timedelta
 from wtforms import TextField, TextAreaField, SubmitField, StringField, PasswordField, IntegerField, FileField
 from app import db
 from wtforms import SelectField
-
-
-#import everything from peewee because we might need it 
+from sqlalchemy.orm import relationship
 from peewee import *
 from flask_login import UserMixin
 from flask_bcrypt import generate_password_hash
 
 DATABASE = SqliteDatabase('grapplr.db')
 
-
-
 class User(UserMixin, Model):
+    __tablename__ = "user"
     __table_args__ = {'extend_existing': True} 
-    
+
     username = CharField(unique=True)
     email = CharField(unique=True)
     password = CharField(max_length=100)
@@ -27,14 +24,29 @@ class User(UserMixin, Model):
     weight = IntegerField()
     style = CharField(max_length=20)
     about = CharField(max_length=450)
-    image_file = CharField(default='tyler2.jpg')
+    image_file = CharField(max_length=20, default='tyler2.jpg')
     # location = CharField()
     joined_at = DateTimeField(default=date.today().strftime("%d/%B/%Y"))
-    # challanged = db.relationship('User', secondary=user_matches, primaryjoin=(user_matches.c.user_id_1 == id), secondaryjoin=(user_matches.c.user_id_2 == id), backref=db.backref('user_matches', lazy='dynamic'), lazy='dynamic')
     class Meta:
         database = DATABASE
         order_by = ('-timestamp',)
     
+    def __repr__(self):
+        return '<User {}>'.format(self.username)
+
+    def follow(self, user):
+        if not self.is_following(user):
+            self.challanged.append(user)
+
+    def unfollow(self, user):
+        if self.is_following(user):
+            self.challanged.remove(user)
+
+    def is_following(self, user):
+        return self.challanged.filter(
+            challangers.c.challanged_id == user.id).count() > 0
+
+
     #  function that creates a new user
     @classmethod
     def create_user(cls, username, email , password, name, height, weight, style, about, image_file):
@@ -59,30 +71,15 @@ class Fight(Model):
     description = TextField()
     timestamp = DateTimeField(default=datetime.now().strftime("%Y-%m-%d %H:%M"))
     user = ForeignKeyField(User, backref="fights")
-
+    # username = ForeignKeyField(User.username, backref="fights")
+    location = TextField()
     class Meta:
         database = DATABASE
         order_by = ('-timestamp',)
-
-# class FileContents(Model): 
-#     __table_args__ = {'extend_existing': True} 
-#     name = CharField(max_length=300, unique=True)
-#     # data = db.Column(db.LargeBinary, unique=True)
-#     user_id = ForeignKeyField(User.id, backref='filecontents')
-#     user = ForeignKeyField(User, backref="filecontents")
-
-# class User_Matches(Model):
-#     __table_args__ = {'extend_existing': True}
-#     user_id_1 = ForeignKeyField(User.id, backref='usermatches')
-#     user_id_2 = ForeignKeyField(User.id, backref='usermatches')
-#     match_date = DateTimeField(default=datetime.now().strftime("%Y-%m-%d %H:%M"))
     
-
-#     class Meta:
-#         database = DATABASE
-#         order_by = ('-timestamp',)
-
 def initialize():
+    # db.create_all()
+    # models.initialize()
     DATABASE.connect()
     DATABASE.create_tables([User, Fight], safe=True)
     DATABASE.close()

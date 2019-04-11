@@ -32,8 +32,10 @@
     <div class='message-location'>
       <ul class="collapsible popout">
         <li>
-          <div class="collapsible-header"><i class="material-icons">place</i>Location</div>
-          <div class="collapsible-body"><span>Lorem ipsum dolor sit amet.</span></div>
+          <div class="collapsible-header"><span><a href='https://www.google.com/maps/search/?api=1&query={{fight.location | urlencode}}'><i class="material-icons">place</i></a>{{ fight.location }}</span></div>
+          <div class="collapsible-body"><span>
+            <!-- <div id="map"></div> -->
+            </span></div>
         </li>
       </ul>
     </div>

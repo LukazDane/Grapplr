@@ -5,12 +5,13 @@ from wtforms import TextField, TextAreaField, SubmitField, StringField, Password
 from flask import make_response as response
 from werkzeug.utils import secure_filename
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, login_user, logout_user, login_required, current_user
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user, UserMixin
 from flask_bcrypt import check_password_hash
 from peewee import fn
 from io import BytesIO
 from PIL import Image
-
+import urllib
+from markupsafe import Markup
 import os
 import forms 
 import models
@@ -63,7 +64,16 @@ def after_request(response):
     # """Close the database connection after each request."""
     g.db.close()
     return response
-
+#-----------------
+# Url Encodeing for links
+#-----------------
+# @app.template_filter('urlencode')
+# def urlencode_filter(s):
+#     if type(s) == 'Markup':
+#         s = s.unescape()
+#     s = s.encode('utf8')
+#     s = urllib.parse.quote_plus(s)
+#     return Markup(s)
 #-----------------
 # Root Route
 #-----------------
@@ -131,7 +141,8 @@ def register():
             weight = form.weight.data,
             style = form.style.data,
             about = form.about.data,
-            image_file = form.image_file.data
+            image_file = url_for('static', filename='profile_pics/' + current_user.image_file)
+.data
             )
         return redirect('/login')
     return render_template('register.html', title="Register", form=form, image_file=image_file)
@@ -215,11 +226,12 @@ def dashboard():
         models.Fight.create(
         name=form.name.data.strip(),
         description=form.description.data.strip(), 
-        user = current_user.id,
-        username = current_user.username)
-        return redirect(url_for("dashboard.html", user=current_user, form=form, fights=fights, username=current_user))
+        user=current_user.id
+        # username=models.User.username
+        )
+        return redirect(url_for("dashboard.html", user=current_user, form=form, fights=fights))
     # image_file = url_for('static', filename='profile_pics/' + current_user.image_file)
-    return render_template('dashboard.html', user=current_user, form=form, fights=fights, username=current_user)
+    return render_template('dashboard.html', user=current_user, form=form, fights=fights)
 
 #delete fight
 @app.route("/dashboard/<fightid>")
@@ -270,7 +282,35 @@ def user(username):
     username=username
     return render_template('user.html', username=username, user=user, users=users, fights=fights, image_file=image_file)
 
+@app.route('/follow/<username>')
+@login_required
+def follow(username):
+    user = User.query.filter_by(username=username).first()
+    if user is None:
+        flash('User {} not found.'.format(username))
+        return redirect(url_for('index'))
+    if user == current_user:
+        flash('You cannot follow yourself!')
+        return redirect(url_for('user', username=username))
+    current_user.follow(user)
+    db.session.commit()
+    flash('You are following {}!'.format(username))
+    return redirect(url_for('user', username=username))
 
+@app.route('/unfollow/<username>')
+@login_required
+def unfollow(username):
+    user = User.query.filter_by(username=username).first()
+    if user is None:
+        flash('User {} not found.'.format(username))
+        return redirect(url_for('index'))
+    if user == current_user:
+        flash('You cannot unfollow yourself!')
+        return redirect(url_for('user', username=username))
+    current_user.unfollow(user)
+    db.session.commit()
+    flash('You are not following {}.'.format(username))
+    return redirect(url_for('user', username=username))
 #--------------
 # Create fight
 #--------------
@@ -279,15 +319,16 @@ def user(username):
 @login_required
 def add_fight():
     form = forms.FightForm()
-    fights = models.Fight.select().where(models.Fight.user == current_user.id)
+    fights = models.Fight.select().where(models.Fight.user == current_user.id and (models.Fight.user == User.username))
     if form.validate_on_submit():
         models.Fight.create(
         name=form.name.data,
         description=form.description.data.strip(),
         user = current_user.id,
-        username = current_user.username)
-        return redirect(url_for('dashboard', user=current_user, form=form, fights=fights, username=current_user.username))
-    return render_template('add_fight.html', user=current_user, form=form, fights=fights, username=current_user.username)
+        username = current_user.username,
+        location = form.location.data)
+        return redirect(url_for('dashboard', user=current_user.id, form=form, fights=fights, username=current_user))
+    return render_template('add_fight.html', user=current_user.id, form=form, fights=fights, username=current_user)
 
 #---------------
 # Fights
@@ -309,81 +350,53 @@ def page_not_found(e):
 #---------------------------------------------------------
 
 # --------------------------------------------------------
-
-class User(db.Model):
+challangers = db.Table('challangers',
+    db.Column('challanger_id', db.Integer, db.ForeignKey('user.id')),
+    db.Column('challanged_id', db.Integer, db.ForeignKey('user.id'))
+)
+class User(UserMixin, db.Model):
     __tablename__ = "user"
+    __table_args__ = {'extend_existing': True} 
+
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(15), unique=True)
     email = db.Column(db.String(120), unique=True)
     password = db.Column(db.String)
-    age = db.Column(db.Integer)
-    location = db.Column(db.String)
+    name = db.Column(db.String)
     height = db.Column(db.Integer)
     weight = db.Column(db.Integer)
     style = db.Column(db.String)
     about = db.Column(db.String(450))
     image_file = db.Column(db.String(20), nullable=False, default='tyler2.jpg')
+    battles = db.relationship(
+        'User', secondary=challangers,
+        primaryjoin=(challangers.c.challanger_id == id),
+        secondaryjoin=(challangers.c.challanged_id == id),
+        backref=db.backref('challangers', lazy='dynamic'), lazy='dynamic')
+
+
+#     def follow(self, user):
+#         if not self.is_following(user):
+#             self.challanged.append(user)
+
+#     def unfollow(self, user):
+#         if self.is_following(user):
+#             self.challanged.remove(user)
+
+#     def is_following(self, user):
+#         return self.challanged.filter(
+#             challangers.c.challanged_id == user.id).count() > 0
 
 #     def __init__(self, email):
 #         self.email = email
 
 #     def __repr__(self):
 #         return '<E-mail %r>' % self.email
-class UserMatch(db.Model):
-    """holds matches made through the history of the app"""
-
-    __tablename__ = "user_matches"
-
-    match_id = db.Column(db.Integer, autoincrement=True,
-                        primary_key=True)
-    user_id_1 = db.Column(db.Integer,
-                        db.ForeignKey('user.id'),
-                        nullable=False)
-    user_id_2 = db.Column(db.Integer,
-                        db.ForeignKey('user.id'),
-                        nullable=False)
-    match_date = db.Column(db.DateTime, nullable=False)
-    user_2_status = db.Column(db.Boolean, nullable=False)
-    query_pincode = db.Column(db.String(20), nullable=False)
-
-    def __repr__ (self):
-        """return interest choices of the user"""
-
-        d1 = '< match_id={a}, user_id_1={b},'.format(a=self.match_id,
-                                                    b=self.user_id_1)
-        d2 =' user_id_2={c}, match_date={d}>'.format(c=self.user_id_2,
-                                                    d=self.match_date)
-
-        return d1 + d2
-
-
-class PendingMatch(db.Model):
-    """holds a list of all pending matches for user queries"""
-
-    __tablename__ = "pending_matches"
-
-    user_query_id = db.Column(db.Integer, autoincrement=True,
-                            primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'),
-                            nullable=False)
-    query_pin_code = db.Column(db.Integer, nullable=False)
-    query_time = db.Column(db.DateTime, nullable=False)
-    pending = db.Column(db.Boolean, nullable=False)
-
-    def __repr__ (self):
-        """return information about a user query"""
-
-        d1 = "<user_query_id={a}, user_id={b},".format(a=self.user_query_id,
-                                                        b=self.user_id)
-        d2 = " query_pin_code={c}, query_time={d},".format(c=self.query_pin_code,
-                                                        d=self.query_time)
-        d3 = " pending={e}>".format(e=self.pending)
-
-        return d1 + d2 + d3
-
+# user1 = User(username='A1_Steaksauce', name='Anthony', email='tony@tony.com', password='password', height=67, weight=170, style='Drunken fist', about='Saucy')
+# db.session.add(user1)
 if __name__ == '__main__':
-    models.initialize()
     db.create_all()
+    models.initialize()
     app.secret_key = os.urandom(12)
     app.run(debug=DEBUG, port=PORT)
 

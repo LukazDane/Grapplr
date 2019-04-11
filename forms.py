@@ -5,7 +5,7 @@ from wtforms import SelectField
 from wtforms.validators import (DataRequired, Regexp, ValidationError, Email, Length, EqualTo, NumberRange)
 from flask_login import UserMixin, current_user
 from flask_bcrypt import generate_password_hash
-from models import User
+import models
 
 def name_exists(form, field):
     if User.select().where(User.username == field.data). exists():
@@ -89,6 +89,9 @@ class FightForm(Form):
     description = TextAreaField("Fight requirements: \n length: \n rules: \n Misc notes:",validators = [
             DataRequired()
         ])
+    location = TextField("Venue", validators = [
+            DataRequired()
+        ])
     submit = SubmitField('Fight!')
 
 class UploadForm(Form):
@@ -99,6 +102,9 @@ class EditFightForm(Form):
     name = TextField("By:")
     title = TextField("Title")
     description = TextAreaField("Content", validators = [
+            DataRequired()
+        ])
+    location = TextField("Venue", validators = [
             DataRequired()
         ])
     submit = SubmitField('Edit Fight request')

@@ -11,10 +11,18 @@
     {{ form.description.label }}
     {{ form.description(class_="textarea") }}
   </div>
-
-  <!-- Add form input for location, use drop down or varchar as placeholder until api works -->
-
-  {{ form.submit(class_="button") }}
+  <div class="field">
+    {{ form.location.label }}
+    {{ form.location(class_="textarea") }}
+  </div>
+  <div class="field">
+    {{ form.submit(class_="button") }}
+  </div>
 </form>
-
+<div id="map"></div>
+<div id="infowindow-content">
+  <img src="" width="16" height="16" id="place-icon" />
+  <span id="place-name" class="title"></span><br />
+  <span id="place-address"></span>
+</div>
 {% endblock %}

@@ -1,22 +1,24 @@
 {% extends "layout.html" %} {% block body %}
 <div class="row">
-  <h3 style="position: absolute; color: white">{{ username }}</h3>
+  <h3 class="user-name">{{ username }}</h3>
   <img class="prof-img-a" src=/static/profile_pics/{{ users.image_file }}
   />
-  <div class="button col s6">Fight</div>
+
   <!-- add user id to match array -->
-  <div class="button col s6">Pass</div>
+  <p>Challanged: {{ user.challanged_id }} users.</p>
+  <p>Challanged by: {{ user.challanger_id }} users.</p>
   <!-- do nothing or add to pass array -->
 </div>
+
 <div class="stats-container">
-  <p class="stats"><span> Height:</span> {{ current_user.height }}</p>
-  <p class="stats"><span> Weight:</span> {{ current_user.weight }}</p>
-  <p class="stats"><span> Style:</span> {{ current_user.style }}</p>
+  <p class="stats"><span> Height:</span> {{ users.height }}</p>
+  <p class="stats"><span> Weight:</span> {{ users.weight }}</p>
+  <p class="stats"><span> Style:</span> {{ users.style }}</p>
   <!-- <p class="stats"><span> About me:</span></p> -->
-  <p class="stats"><span> Join Date:</span> {{ current_user.joined_at }}</p>
+  <p class="stats"><span> Join Date:</span> {{ users.joined_at }}</p>
 </div>
 <div class="about-me">
-  <p class="about me"><span>About me:</span> {{ current_user.about }}</p>
+  <p class="about me"><span>About me:</span> {{ users.about }}</p>
 </div>
 
 {% endblock %}
