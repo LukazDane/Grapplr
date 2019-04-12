@@ -1,29 +1,39 @@
 {% extends "layout.html" %} {% block body %}
-<div class="row">
-  <h3 class="user-name">{{ username }}</h3>
+<div class="row face">
+  <h3 class="user-name">{{ users.username }}</h3>
   <img class="prof-img-a" src=/static/profile_pics/{{ users.image_file }}
   />
-
-  <!-- add user id to match array -->
-  <!-- do nothing or add to pass array -->
-  <!-- re add if statement to switch buttions if user has been challanged -->
+</div>
+<!-- add user id to match array -->
+<!-- do nothing or add to pass array -->
+<!-- re add if statement to switch buttions if user has been challanged -->
+<div class="form-container">
   <form method="POST" action="" novalidate>
     {{ form.hidden_tag() }}
-    <div class="field">
+    <div class="field hide">
       {{ form.follower_id.label }}
       {{ form.follower_id(class_="textarea") }}
     </div>
-    <div class="field">
+    <div class="field hide">
       {{ form.followed_id.label }}
       {{ form.followed_id(class_="textarea") }}
     </div>
-    <div class="field">
+    <div class="field fight">
       {{ form.submit(class_="button") }}
     </div>
   </form>
 </div>
 <!--  -->
-
+<!-- <div class="row">
+  <div class="col s6">
+    Challangers:
+    <div class="badge">{{ follows.get().followed.count() }}</div>
+  </div>
+  <div class="col s6">
+    Challanged:
+    <div class="badge">{{ follows.get().follower.count() }}</div>
+  </div>
+</div> -->
 <div class="stats-container">
   <p class="stats"><span> Height:</span> {{ users.height }}</p>
   <p class="stats"><span> Weight:</span> {{ users.weight }}</p>
@@ -34,5 +44,6 @@
 <div class="about-me">
   <p class="about me"><span>About me:</span> {{ users.about }}</p>
 </div>
-
+<!-- not implemented yet -->
+<div class="report">Report {{ users.username }}</div>
 {% endblock %}

@@ -123,7 +123,7 @@ class UpdateUserForm(Form):
 class FollowForm(Form):
     follower_id = IntegerField(validators=[DataRequired()])
     followed_id = IntegerField(validators=[DataRequired()])
-    submit =  SubmitField()
+    submit =  SubmitField('Challange')
 
     def name_exists(form, field):
         if User.select().where(User.username == field.data).exists():

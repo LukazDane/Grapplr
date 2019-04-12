@@ -60,7 +60,10 @@
       </ul>
     </footer>
     {% endif %}
-
+    <!--CSS Spinner-->
+    <div class="spinner-wrapper">
+      <div class="spinner"></div>
+    </div>
     <script
       type="text/javascript"
       src="https://code.jquery.com/jquery-2.1.1.min.js"
@@ -192,6 +195,19 @@
         //     autocomplete.setOptions({ strictBounds: this.checked });
         //   });
       }
+    </script>
+    <script>
+      $(document).ready(function() {
+        //Preloader
+        $(window).on("load", function() {
+          preloaderFadeOutTime = 500;
+          function hidePreloader() {
+            var preloader = $(".spinner-wrapper");
+            preloader.fadeOut(preloaderFadeOutTime);
+          }
+          hidePreloader();
+        });
+      });
     </script>
   </body>
 </html>

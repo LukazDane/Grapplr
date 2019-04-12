@@ -1,6 +1,12 @@
 {% extends 'layout.html' %} {% block body %}
-<h1>This page should only display for users that are NOT signed in</h1>
-<div><a href={{url_for('login')}} class="button is-primary">Log-In</a></div>
-<div><a href={{url_for('register')}} class="button is-primary">Sign-Up</a></div>
-
+<div class="content-overlay content-container">
+        <div class="content test">
+                <button class='btn login-link'><a href={{url_for('login')}} class="button is-primary">Log-In</a></button>
+                <button class='btn signup-link'><a href={{url_for('register')}} class="button is-primary">Sign-Up</a></button>
+          <!-- <img class="logo" src="/static/omq.png" /> -->
+        </div>
+        <video autoplay muted loop id="myVideo">
+          <source src="/static/boxing.mp4" type="video/mp4" />
+        </video>
+      </div>
 {% endblock %}

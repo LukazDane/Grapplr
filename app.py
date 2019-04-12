@@ -169,8 +169,7 @@ def save_picture(form_picture):
 @login_required
 def profile():
     users = models.User.get()
-    follows = models.Follow.get()
-    # .where(models.Follow.follower == current_user.id)
+    follows = models.Follow.select()
     form = forms.UpdateUserForm()
     if form.validate_on_submit():
         if form.picture.data:

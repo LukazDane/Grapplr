@@ -3,6 +3,52 @@ body {
   padding-bottom: 10vh;
 }
 
+.spinner {
+  width: 40px;
+  height: 40px;
+  background-color: #333;
+
+  position: absolute;
+  top: 48%;
+  left: 48%;
+  -webkit-animation: sk-rotateplane 1.2s infinite ease-in-out;
+  animation: sk-rotateplane 1.2s infinite ease-in-out;
+}
+.spinner-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #601f1f;
+  z-index: 999999;
+}
+@-webkit-keyframes sk-rotateplane {
+  0% {
+    -webkit-transform: perspective(120px);
+  }
+  50% {
+    -webkit-transform: perspective(120px) rotateY(180deg);
+  }
+  100% {
+    -webkit-transform: perspective(120px) rotateY(180deg) rotateX(180deg);
+  }
+}
+
+@keyframes sk-rotateplane {
+  0% {
+    transform: perspective(120px) rotateX(0deg) rotateY(0deg);
+    -webkit-transform: perspective(120px) rotateX(0deg) rotateY(0deg);
+  }
+  50% {
+    transform: perspective(120px) rotateX(-180.1deg) rotateY(0deg);
+    -webkit-transform: perspective(120px) rotateX(-180.1deg) rotateY(0deg);
+  }
+  100% {
+    transform: perspective(120px) rotateX(-180deg) rotateY(-179.9deg);
+    -webkit-transform: perspective(120px) rotateX(-180deg) rotateY(-179.9deg);
+  }
+}
 /* remove all content for non mobile screen size */
 @media screen and (min-device-width: 769px) {
   * body {
@@ -81,11 +127,21 @@ body {
   /* border-bottom: 5px solid #601f1f; */
   margin-bottom: -1vh;
 }
-
+.row.face {
+  margin-bottom: 0rem;
+}
 .prof-username {
-  margin: 0.5em;
+  margin: 0 0.5em;
   font-size: 2.5rem;
   text-align: -webkit-center;
+}
+.badge {
+  display: inline-block;
+  border: 1px solid black;
+  padding: 0 0.5rem;
+  border-radius: 30%;
+  color: white;
+  background-color: black;
 }
 .icons {
   text-align: center;
@@ -111,14 +167,69 @@ body {
   font-size: xx-large;
 }
 .stats-container {
-  border: 1px solid #601f1f;
-  padding: 2rem;
-  font-weight: 800;
+  background-color: #212121;
+  color: white;
+  /* max-height: 10vh; */
+  overflow: scroll;
+  padding: 0 1rem;
 }
 .about-me {
   min-height: 10vh;
+  border: 1px solid #601f1f;
+  padding: 0 2rem;
+  font-weight: 800;
+  background-color: #601f1f;
+  border-top: white solid 0.5rem;
+  border-bottom: white solid 0.5rem;
 }
 /* end prifile page */
+/* landing */
+.content-container {
+  min-height: 100vh;
+  background-color: grey;
+}
+
+.content-container body:parent {
+  overflow: hidden;
+}
+.content {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 50vh;
+  /* min-width: 100%; */
+  /* min-height: 100%; */
+  z-index: 1;
+  background-color: rgba(0, 0, 0, 0.5);
+  margin: 0;
+}
+button.btn.login-link,
+button.btn.signup-link,
+button#submit.btn {
+  background-color: #601f1f;
+  font-weight: 700;
+  display: block;
+  margin: 2em auto;
+}
+button.btn.login-link a,
+button.btn.signup-link a {
+  color: white;
+}
+video {
+  position: absolute;
+  left: -80vh;
+  top: 0;
+  /* bottom: -10vh; */
+  /* width: 100%; */
+  height: 100vh;
+}
+
+/* end landing */
+/* login */
+form h1 {
+  text-align: center;
+}
+/* end login */
 /* Dashboard */
 .fight-container {
   min-height: 90vh;
@@ -202,6 +313,23 @@ body {
 }
 .option {
   background-color: #601f1f !important;
+}
+.fight {
+  margin: 0 1rem;
+  text-align: center;
+  font-size: xx-large;
+  background-color: #601f1f;
+  border-left: white solid 3px;
+  border-right: white solid 3px;
+  border-bottom: grey solid 3px;
+}
+.report {
+  text-align: center;
+  font-size: x-large;
+  opacity: 0.6;
+  font-weight: 400;
+  letter-spacing: 3px;
+  margin: 2rem;
 }
 /* end swipe/user */
 /* add fight */

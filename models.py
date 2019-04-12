@@ -30,6 +30,7 @@ class User(UserMixin, Model):
     class Meta:
         database = DATABASE
         order_by = ('-timestamp',)
+        
 class Follow(Model):
     __tablename__ = "follows"
     __table_args__ = {'extend_existing': True} 

@@ -9,21 +9,24 @@
       </div>
     </div>
     <div class="prof-username">{{ current_user.username }}</div>
-    <div class="col s6">
+    <!-- <div class="col s6">
         Challanged: <span class=""> {{ follows.get().follower.count() }} </span>
       </div>
       <div class="col s6">
         Challangers: <span class="">{{ follows.get().followed.count() }}</span>
-      </div>
-      <ul>
+      </div> -->
+      
           {% for followed_id in follows.Follow %}
               <li>X- a line was counted but nothing displayed</li>
-              <li>{{ follows.follower_id| unique}}</li>
+              <li>{{ follows.follower_id.count()| unique}}</li>
           {% else %}
-          <li>{{ follows.followed_id }}</li>
-              <li><em>no users found</em></li>
+          <div class='row'>
+            <div class='col s6'>Challangers: <div class='badge'>{{ follows.get().followed.count() }}</div></div>
+            <div class='col s6'>Challanged: <div class='badge'>{{ follows.get().follower.count() }}</div></div>
+          </div>
+              <!-- <li><em>no users found</em></li> -->
           {% endfor %}
-          </ul>
+        
     <!-- <hr /> -->
     <div class="stats-container">
       <p class="stats"><span> Height:</span> {{ current_user.height }}</p>
