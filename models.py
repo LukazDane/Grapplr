@@ -31,7 +31,7 @@ class User(UserMixin, Model):
         database = DATABASE
         order_by = ('-timestamp',)
 class Follow(Model):
-    __tablename__ = "fight"
+    __tablename__ = "follows"
     __table_args__ = {'extend_existing': True} 
 
     follower_id = ForeignKeyField(User.id, backref="follower")

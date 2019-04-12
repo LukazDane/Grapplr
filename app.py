@@ -168,6 +168,9 @@ def save_picture(form_picture):
 @app.route('/profile', methods=['GET','POST'])
 @login_required
 def profile():
+    users = models.User.get()
+    follows = models.Follow.get()
+    # .where(models.Follow.follower == current_user.id)
     form = forms.UpdateUserForm()
     if form.validate_on_submit():
         if form.picture.data:
@@ -182,7 +185,7 @@ def profile():
         form.username.data = current_user.username
         form.email.data = current_user.email
         image_file = url_for('static', filename='profile_pics/' + current_user.image_file)
-        return render_template('profile.html', title='Profile', image_file=image_file, form=form)
+        return render_template('profile.html',users=users, title='Profile',follows=follows, image_file=image_file, form=form)
 
 
 #edit profile
@@ -198,7 +201,7 @@ def edit_profile():
         user.weight = form.weight.data
         user.style = form.style.data
         user.about = form.about.data
-        user.location = form.location.data
+        # user.location = form.location.data
         if form.picture.data:
             picture_file = save_picture(form.picture.data)
             current_user.image_file = picture_file
@@ -213,7 +216,7 @@ def edit_profile():
         form.weight.data = current_user.weight
         form.style.data = current_user.style
         form.about.data = current_user.about
-        form.location.data = current_user.location
+        # form.location.data = current_user.location
         image_file = url_for('static', filename='profile_pics/' + current_user.image_file)
         return render_template('edit_profile.html', form=form, image_file=image_file)
     return redirect(url_for('profile'))
@@ -275,14 +278,27 @@ def swipe():
 #--------------
 # Other Users
 #--------------
-@app.route('/profile/<username>', methods=['GET'])
+@app.route('/profile/<userid>', methods=['GET', 'POST'])
 @login_required
-def user(username):
-    follows = models.Follow.select()
-    users = models.User.get(models.User.username == username)
+def user(userid):
+    form = forms.FollowForm()
+    follows = models.Follow.get(models.Follow.follower_id == models.Follow.follower_id)
+    users = models.User.get(models.User.id == userid)
+    if form.validate_on_submit():
+        models.Follow.create(
+        follower_id = current_user.id,
+        followed_id = users)
+        db.session.commit()
+        follows.save()
+        return redirect(url_for('user', follows=follows,   userid=userid, user=user, users=users, form=form))
+    form.follower_id.data = current_user.id
+    form.followed_id.data = users
     image_file = url_for('static', filename='profile_pics/' + User.image_file)
-    return render_template('user.html',follows=follows, username=username, user=user, users=users, fights=fights, image_file=image_file)
-
+    return render_template('user.html',follows=follows,   userid=userid, user=user, users=users, fights=fights, image_file=image_file, form=form)
+def delete_match(userid):
+    follows = models.Follow.get(models.Follow.follower_id == models.Follow.follower_id)
+    follows.delete_instance()
+    return redirect(url_for('user'))
 #--------------
 # Create fight
 #--------------
@@ -345,11 +361,16 @@ class User(UserMixin, db.Model):
     image_file = db.Column(db.String(20), nullable=False, default='tyler2.jpg')
     followed=db.relationship('Follow',
                 foreign_keys=[Follow.follower_id],
-                backref=db.backref('follower',lazy='joined'),
-                lazy='dynamic',
+                backref=db.backref('follower',
+                # lazy='joined'
+                ),
+                # lazy='dynamic',
                 cascade='all, delete-orphan')
     followers=db.relationship('Follow',foreign_keys=[Follow.followed_id],
-                backref=db.backref('followed',lazy='joined'),lazy='dynamic',
+                backref=db.backref('followed',
+                # lazy='joined'
+                ),
+                # lazy='dynamic',
                 cascade='all, delete-orphan')
     @classmethod
     def create_user(cls, username, email , password, name, height, weight, style, about, image_file):
@@ -363,7 +384,9 @@ class User(UserMixin, db.Model):
                     weight = weight,
                     style = style,
                     about = about,
-                    image_file = image_file
+                    image_file = image_file,
+                    followed = followed,
+                    followers = followers
                 )
             except IntegrityError:
                 raise ValueError("User already exists")
@@ -375,100 +398,103 @@ class User(UserMixin, db.Model):
                 db.session.add(user)
                 db.session.commit()
 
-    def follow(self, user):
-        if not self.is_following(user):
-            f = Follow(follower=self, followed=user)
-            db.session.add(f)
+#     def follow(self, user):
+#         if not self.is_following(user):
+#             f = Follow(follower=self, followed=user)
+#             db.session.add(f)
 
-    def unfollow(self, user):
-        f = self.followed.filter_by(followed_id=user.id).first()
-        if f:
-            db.session.delete(f)
+#     def unfollow(self, user):
+#         f = self.followed.filter_by(followed_id=user.id).first()
+#         if f:
+#             db.session.delete(f)
 
-    def is_following(self, user):
-        if user.id is None:
-            return False
-        return self.followed.filter_by(
-            followed_id=user.id).first() is not None
+#     def is_following(self, user):
+#         if user.id is None:
+#             return False
+#         return self.followed.filter_by(
+#             followed_id=user.id).first() is not None
 
-    def is_followed_by(self, user):
-        if user.id is None:
-            return False
-        return self.followers.filter_by(
-            follower_id=user.id).first() is not None
+#     def is_followed_by(self, user):
+#         if user.id is None:
+#             return False
+#         return self.followers.filter_by(
+#             follower_id=user.id).first() is not None
 
-@app.route('/follow/')
-@app.route('/follow/<username>')
-@login_required
-def follow(username):
-    user = models.User.get(models.User.username == username)
-    if user is None:
-        flash('Invalid user.')
-        return redirect(url_for('index'))
-    if current_user.is_following(user):
-        flash('You are already following this user.')
-        return redirect(url_for('swipe', username=username))
-    current_user.follow(user)
-    db.session.commit()
-    flash('You are now following %s.' % username)
-    return redirect(url_for('swipe', username=username))
+# @app.route('/follow/')
+# @app.route('/follow/<username>')
+# @login_required
+# def follow(username):
+#     users = models.User.get(models.User.username == username)
+#     user = models.User.get(models.User.username == username)
+#     if user is None:
+#         flash('Invalid user.')
+#         return redirect(url_for('index'))
+#     if current_user.is_following(user):
+#         flash('You are already following this user.')
+#         return redirect(url_for('swipe', username=username))
+#     current_user.follow(user)
+#     db.session.commit()
+#     follows.save()
+#     flash('You are now following %s.' % username)
+#     return redirect(url_for('swipe', username=username))
 
-@app.route('/unfollow/')
-@app.route('/unfollow/<username>')
-@login_required
-def unfollow(username):
-    user = User.query.filter_by(username=username).first()
-    if user is None:
-        flash('Invalid user.')
-        return redirect(url_for('index'))
-    if not current_user.is_following(user):
-        flash('You are not following this user.')
-        return redirect(url_for('swipe', username=username))
-    current_user.unfollow(user)
-    db.session.commit()
-    flash('You are not following %s anymore.' % username)
-    return redirect(url_for('swipe', username=username))
-
-
-@app.route('/followers/<username>')
-def followers(username):
-    user = User.query.filter_by(username=username).first()
-    if user is None:
-        flash('Invalid user.')
-        return redirect(url_for('index'))
-    page = request.args.get('page', 1, type=int)
-    pagination = user.followers.paginate(
-        page, per_page=current_app.config['FLASKY_FOLLOWERS_PER_PAGE'],
-        error_out=False)
-    follows = [{'user': item.follower, 'timestamp': item.timestamp}
-               for item in pagination.items]
-    return render_template('followers.html', user=user, title="Followers of",
-                           endpoint='followers', pagination=pagination,
-                           follows=follows)
+# @app.route('/unfollow/')
+# @app.route('/unfollow/<username>')
+# @login_required
+# def unfollow(username):
+#     user = User.query.filter_by(username=username).first()
+#     if user is None:
+#         flash('Invalid user.')
+#         return redirect(url_for('index'))
+#     if not current_user.is_following(user):
+#         flash('You are not following this user.')
+#         return redirect(url_for('swipe', username=username))
+#     current_user.unfollow(user)
+#     db.session.commit()
+#     follows.save()
+#     flash('You are not following %s anymore.' % username)
+#     return redirect(url_for('swipe', username=username))
 
 
-@app.route('/followed_by/<username>')
-def followed_by(username):
-    user = User.query.filter_by(username=username).first()
-    if user is None:
-        flash('Invalid user.')
-        return redirect(url_for('index'))
-    page = request.args.get('page', 1, type=int)
-    pagination = user.followed.paginate(
-        page, per_page=current_app.config['FLASKY_FOLLOWERS_PER_PAGE'],
-        error_out=False)
-    follows = [{'user': item.followed, 'timestamp': item.timestamp}
-               for item in pagination.items]
-    return render_template('followers.html', user=user, title="Followed by",
-                           endpoint='followed_by', pagination=pagination,
-                           follows=follows)
+# @app.route('/followers/<username>')
+# def followers(username):
+#     user = User.query.filter_by(username=username).first()
+#     if user is None:
+#         flash('Invalid user.')
+#         return redirect(url_for('index'))
+#     page = request.args.get('page', 1, type=int)
+#     pagination = user.followers.paginate(
+#         page, per_page=current_app.config['FLASKY_FOLLOWERS_PER_PAGE'],
+#         error_out=False)
+#     follows = [{'user': item.follower, 'timestamp': item.timestamp}
+#                for item in pagination.items]
+#     return render_template('followers.html', user=user, title="Followers of",
+#                            endpoint='followers', pagination=pagination,
+#                            follows=follows)
 
-@app.route('/followed')
-@login_required
-def show_followed():
-    resp = make_response(redirect(url_for('index')))
-    resp.set_cookie('show_followed', '1', max_age=30*24*60*60)
-    return resp
+
+# @app.route('/followed_by/<username>')
+# def followed_by(username):
+#     user = User.query.filter_by(username=username).first()
+#     if user is None:
+#         flash('Invalid user.')
+#         return redirect(url_for('index'))
+#     page = request.args.get('page', 1, type=int)
+#     pagination = user.followed.paginate(
+#         page, per_page=current_app.config['FLASKY_FOLLOWERS_PER_PAGE'],
+#         error_out=False)
+#     follows = [{'user': item.followed, 'timestamp': item.timestamp}
+#                for item in pagination.items]
+#     return render_template('followers.html', user=user, title="Followed by",
+#                            endpoint='followed_by', pagination=pagination,
+#                            follows=follows)
+
+# @app.route('/followed')
+# @login_required
+# def show_followed():
+#     resp = make_response(redirect(url_for('index')))
+#     resp.set_cookie('show_followed', '1', max_age=30*24*60*60)
+#     return resp
 
 # user1 = User(username='A1_Steaksauce', name='Anthony', email='tony@tony.com', password='password', height=67, weight=170, style='Drunken fist', about='Saucy')
 # db.session.add(user1)

@@ -3,7 +3,7 @@
   {% for user in users %} {% if user.id is eq (current_user.id) %} {% else %}
   <!-- if user.pass == True || 1 remove from page for 24hrs -->
   <div class="grid-img">
-    <a href="{{url_for('user', username=user.username)}}">
+    <a href="{{url_for('user', userid=user.id)}}">
       <img class="grid-img-a" src=/static/profile_pics/{{ user.image_file }}
       />
     </a>

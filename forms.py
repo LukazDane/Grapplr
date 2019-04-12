@@ -120,6 +120,11 @@ class UpdateUserForm(Form):
     picture = FileField("Update Profile Picture", validators=[FileAllowed(['jpg', 'png', 'jpeg', 'gif']) ])
     submit = SubmitField('Save')
 
+class FollowForm(Form):
+    follower_id = IntegerField(validators=[DataRequired()])
+    followed_id = IntegerField(validators=[DataRequired()])
+    submit =  SubmitField()
+
     def name_exists(form, field):
         if User.select().where(User.username == field.data).exists():
             raise ValidationError("User with this username already exists!")

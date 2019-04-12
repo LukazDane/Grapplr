@@ -7,35 +7,22 @@
   <!-- add user id to match array -->
   <!-- do nothing or add to pass array -->
   <!-- re add if statement to switch buttions if user has been challanged -->
-  <a
-    href="{{ url_for('follow', username=user.username) }}"
-    class="btn btn-default option col s6"
-    >Fight</a
-  >
-  <!--  -->
-  <a
-    href="{{ url_for('unfollow', username=user.username) }}"
-    class="btn btn-default option col s6"
-    >Withdraw</a
-  >
-  <!-- <a href="{{ url_for('followers', username=user.username) }}"> -->
-  <div class="col s6">
-    Challangers: <span class="">{{ users.followers }}</span>
-  </div>
-  <!-- </a> -->
-  <!-- <a href="{{ url_for('followed_by', username=user.username) }}"> -->
-  <div class="col s6">
-    Challanged: <span class="">{{ users.followed }}</span>
-  </div>
-  <!-- </a> -->
+  <form method="POST" action="" novalidate>
+    {{ form.hidden_tag() }}
+    <div class="field">
+      {{ form.follower_id.label }}
+      {{ form.follower_id(class_="textarea") }}
+    </div>
+    <div class="field">
+      {{ form.followed_id.label }}
+      {{ form.followed_id(class_="textarea") }}
+    </div>
+    <div class="field">
+      {{ form.submit(class_="button") }}
+    </div>
+  </form>
 </div>
-{% for follow in follows %} {% if follows.follower_id is not eq (user.id) %}
-<p>X</p>
-{{ follow.followed_id }}
-{% else %}
-<p>O</p>
-{% endif %} {% endfor %}
-<!-- <span>{{ follows.count() }}</span> -->
+<!--  -->
 
 <div class="stats-container">
   <p class="stats"><span> Height:</span> {{ users.height }}</p>
