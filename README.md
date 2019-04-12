@@ -27,8 +27,6 @@ Sometimes a good way to blow off steam, or just make a bad day better is to hit 
     * Users are able to visit a grid page to see all other users and view their information.
     * User is able to send a challange request to another user.
 
-\*Wireframes
-
 ## Unsolved Problems/Future Fixes
 
 - Users can match with eachother, but sqlite will not return the information in a readable way
@@ -36,21 +34,30 @@ Sometimes a good way to blow off steam, or just make a bad day better is to hit 
 - Style overly that blocks desktop view to look more professional
 - Submitting or editing fight requests rerouts to an error, but the requests do post and update appropriately
 - Need to add user notification when users match eachother
+- add logo
+- deploy with kivy
+- change grid back to swipe once jQuery thing is solved
 
 ### Code
 
+I guess the only code i could say i'm kind of proud of is the user grid. Getting the grid to display user phots was tricky. Getting the grid to display the right ser photo was a mess.
+![swipe](https://github.com/LukazDane/Grapplr/blob/master/static/CodeBlocks/user_grid.png)
+![grid](https://github.com/LukazDane/Grapplr/blob/master/static/CodeBlocks/user_grid_route.png)
+
 ### Biggest Challanges
 
-> Figuring out the association table for user to user matches. Each solution I found ended up creating a different problem.
-> jQuery and Scripts won't/wouldn't work in js file.
-> Docs for a lot of the things I needed were out of date.
-> At one point data from challanges was populating to databases consitently and in trying to figure out why it would only return "generator x0002342348" objects, I couldn't backtrack to poplulate it the same way again.
+- Figuring out the association table for user to user matches. Each solution I found ended up creating a different problem.
+- jQuery and Scripts won't/wouldn't work in js file.
+- Docs for a lot of the things I needed were out of date.
+- At one point data from challanges was populating to databases consitently and in trying to figure out why it would only return "generator x0002342348" objects, I couldn't backtrack to poplulate it the same way again.
 
 ### Successes
 
-> Found a work around to get challanges/challanger into db with a form(not-ideal)
-> Google Map auto fills, and adjusts to inut location on fightform
-> all fights with a location tag link to a google maps page for that location
+- Found a work around to get challanges/challanger into db with a form(not-ideal)
+
+- Google Map auto fills, and adjusts to inut location on fightform
+
+- all fights with a location tag link to a google maps page for that location
 
 ### Shoutouts
 
