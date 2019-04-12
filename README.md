@@ -7,7 +7,8 @@ Sometimes a good way to blow off steam, or just make a bad day better is to hit 
 ### Tech Used:
 
 - Flask
-- Peewee
+- ~~Peewee~~
+- SQLAlchemy
 - Jinja
 - Sqlite
 
